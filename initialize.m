@@ -98,7 +98,8 @@ Kw=9*eye(3);
 C1=1.5;
 
 %%Estimater
-gamma_CoG = diag([0.0002,0.0002,0.0002]);
-kcl_CoG=diag([0.09,-0.09,0.09]);
+gamma_CoG = diag([0.02,0.02,0.02]);
+gamma_MoI = diag([0.02,0.02,0.02]);
+kcl_CoG=diag([0.09,0.09,0.09]);
 
 
