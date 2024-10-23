@@ -7,9 +7,9 @@ t=1:1:Sim_Time/dt;
 g = [0,0,-9.81]'; %units:kg/m^2
 m_sys = 74.33; %units:kg
 RW_MOI = 2.9788e-3;
-MOI = [8,0,0;...
-       0,8.13,0;...
-       0,0,8];
+MOI = [7.13,0,0;...
+       0,7.09,0;...
+       0,0,7.13];
 CoG = [0.001,-0.001,-0.005]'; %units:m
 
 amplitude = 0.6;
@@ -57,8 +57,7 @@ Omegad = [0,0,0]';
 Omegad_dot = [0,0,0]';
 
 % Estimate Param
-Theta_sys = [CoG(1),CoG(2),CoG(3),MOI(1,1),MOI(2,2),MOI(3,3)]'; % Ground Truth Value
-Theta_J = [MOI(1,1),MOI(2,2),MOI(3,3)]';
+Theta_sys = [CoG(1),CoG(2),CoG(3),MoI(1,1),MoI(2,2),MoI(3,3)]'; % Ground Truth Value
 
 Theta_hat_sys =(Theta_sys*0.5);
 Theta_hat_sys_prev = Theta_hat_sys;
@@ -66,7 +65,6 @@ Theta_hat_sys_prev = Theta_hat_sys;
 
 % Regression matrix
 Y_CoG = zeros(3,3);
-Y_J = zeros(3,3);
 Y_sys = [Y_CoG,Y_J];
 
 M=[0,0,0]';
@@ -86,8 +84,8 @@ record_y_cl = zeros(3,6,length(t));
 record_m_temp=zeros(length(t),3);
 record_y_cl_temp=zeros(3,6,length(t));
 
-record_theta = zeros(6,length(t));
-record_theta_hat = zeros(6,length(t));
+record_theta_CoG = zeros(3,length(t));
+record_theta_CoG_hat = zeros(3,length(t));
 
 
 
@@ -100,7 +98,7 @@ Kw=9*eye(3);
 C1=1.5;
 
 %%Estimater
-gamma = diag([0.0002,0.0002,0.0002,0.0003,0.0003,0.0004]);
-kcl=diag([0.09,-0.09,0.09,50000000000,50000000000,50000000000]);
+gamma_CoG = diag([0.0002,0.0002,0.0002]);
+kcl_CoG=diag([0.09,-0.09,0.09]);
 
 
