@@ -67,9 +67,9 @@ for i=1:length(t)
 
 
     % Regression matrix use for Estimate
-    Y_J_cl = [Omega_sys_dot_prev(1),Omega_sys_prev(2)*Omega_sys_prev(3),Omega_sys_prev(2)*Omega_sys_prev(3) ;...
-              -Omega_sys_prev(1)*Omega_sys_prev(3) ,Omega_sys_dot_prev(2),-Omega_sys_prev(1)*Omega_sys_prev(3);...
-              Omega_sys_prev(1)*Omega_sys_prev(2) ,-Omega_sys_prev(1)*Omega_sys_prev(2),Omega_sys_dot_prev(3)];
+    Y_J_cl = [Omega_sys_dot_prev(1),-Omega_sys_prev(2)*Omega_sys_prev(3),Omega_sys_prev(2)*Omega_sys_prev(3) ;...
+              Omega_sys_prev(1)*Omega_sys_prev(3) ,Omega_sys_dot_prev(2),-Omega_sys_prev(1)*Omega_sys_prev(3);...
+              -Omega_sys_prev(1)*Omega_sys_prev(2) ,Omega_sys_prev(1)*Omega_sys_prev(2),Omega_sys_dot_prev(3)];
     Y_sys_cl = [Y_CoG,Y_J_cl];
     % integral y_sys_cl from delta t to t
     
@@ -84,7 +84,7 @@ for i=1:length(t)
     ICL_term_prev = [0,0,0,0,0,0]';
     
     if i>100
-        for j=1:5
+        for j=1:10
             ICL_term = ICL_term_prev + record_y_cl(:,:,i-j)'*(record_m(i-j,:)'-(record_y_cl(:,:,i-j)*Theta_hat_sys_prev));
             ICL_term_prev = ICL_term;
         end

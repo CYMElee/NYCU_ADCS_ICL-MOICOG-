@@ -96,11 +96,11 @@ record_theta_hat = zeros(6,length(t));
 %% Controller
 %Controller control gain
 Kr=15*eye(3);
-Kw=9*eye(3);
-C1=1.5;
+Kw=10*eye(3);
+C1=1.2;
 
 %%Estimater
-gamma = diag([0.0002,0.0002,0.0002,0.0003,0.0003,0.0004]);
-kcl=diag([0.09,-0.09,0.09,50000000000,50000000000,50000000000]);
+gamma = diag([0.2,0.2,0.2,0.3,0.3,0.4]);
+kcl=diag([0.0009,0.0009,0.0009,0.00005,0.00005,0.00005]);
 
 
