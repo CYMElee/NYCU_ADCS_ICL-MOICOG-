@@ -7,7 +7,7 @@ icl_term_prev = icl_term;
 
 
 for j = 1:10
-     icl_term = icl_term_prev + ((record_y(:,:,i-j))'*(record_m(:,i-j)-record_y(i-j)*theta_hat));
+     icl_term = icl_term_prev + ((record_y(:,:,i-j))'*(record_m(i-j,:)-record_y(:,:,i-j)*theta_hat));
      icl_term_prev = icl_term;
 end
 
