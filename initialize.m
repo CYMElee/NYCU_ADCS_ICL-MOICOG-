@@ -7,15 +7,21 @@ t=1:1:Sim_Time/dt;
 g = [0,0,-9.81]'; %units:kg/m^2
 m_sys = 74.33; %units:kg
 RW_MOI = 2.9788e-3;
+
+%System's MoI
+
 MOI = [7.13,0,0;...
        0,7.09,0;...
        0,0,7.13];
-CoG = [0.001,0.001,-0.005]'; %units:m
+% CoG offect
+CoG = [0,0.001,-0.005]'; %units:m
 
+% use to constrain the trajectory amplitude 
 amplitude = 0.6;
-frequency_x =15;
-frequency_y = 5;
-frequency_z = 5;
+% use to constrain the trajectory frequency 
+frequency_x =0.01;
+frequency_y = 0.06;
+frequency_z = 0.04;
 
  
 
@@ -52,22 +58,26 @@ eR = [0,0,0]';
 eW = [0,0,0]';
 
 % Desire
-Rd = [0,0,0]';
-Omegad = [0,0,0]';
-Omegad_dot = [0,0,0]';
+Rd = [0,0,0]'; %Desire attitude
+Omegad = [0,0,0]'; %Desire angular velocity
+Omegad_dot = [0,0,0]'; %Desire angular acceletare
+
 
 % Estimate Param
 Theta_sys = [CoG(1),CoG(2),CoG(3),MOI(1,1),MOI(2,2),MOI(3,3)]'; % Ground Truth Value
-Theta_J = [MOI(1,1),MOI(2,2),MOI(3,3)]';
 
-Theta_hat_sys =(Theta_sys*0);
+
+Theta_hat_sys =(Theta_sys*0); % Estimate from zero
 Theta_hat_sys_prev = Theta_hat_sys;
-%Theta_hat_dot_sys =Theta_hat_sys*dt;
+
+
 
 % Regression matrix
 Y_CoG = zeros(3,3);
 Y_J = zeros(3,3);
 Y_sys = [Y_CoG,Y_J];
+
+
 
 M=[0,0,0]';
 

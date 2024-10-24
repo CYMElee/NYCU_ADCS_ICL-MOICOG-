@@ -7,35 +7,35 @@ for i=1:length(t)
     % Trajectory
 
 
-  %  Rd = amplitude*[sin(frequency_x*i*dt)...
-                   % ,cos(frequency_y*i*dt),...
-                   % -sin(frequency_z*i*dt)]';
+    Rd = amplitude*[sin(frequency_x*i*dt)...
+                    ,cos(frequency_y*i*dt),...
+                    -sin(frequency_z*i*dt)]';
 
 
-    Rd = amplitude*[sin(frequency_x*i*dt),...
-                   0,...
-                    0]';
     Rd_zyx = [Rd(3),Rd(2),Rd(1)];
     
 
+    % Define the Euler angle matrix,because the desire attitude represent
+    % by Euler angle,but the Angular velocity can't get from directly derivative the
+    % Euler angle.
+    %Ref:https://eng.libretexts.org/Bookshelves/Mechanical_Engineering/System_Design_for_Uncertainty_(Hover_and_Triantafyllou)/09%3A_Kinematics_of_Moving_Frames/9.04%3A_Rate_of_Change_of_Euler_Angles
     Euler_Matrix = [1,0,-sin(R_prev(2));...
                     0,cos(R_prev(1)),sin(R_prev(1))*cos(R_prev(2));...
                     0,-sin(R_prev(1)),cos(R_prev(1))*cos(R_prev(2))];
-   
-    Omegad = Euler_Matrix*amplitude*[frequency_x*cos(frequency_x*i*dt),...
-                                    0,...
-                                    0]';
 
-  % Omegad = Euler_Matrix*amplitude*[ frequency_x*cos(frequency_x*i*dt),...
-                                   % -frequency_y*sin(frequency_y*i*dt),...
-                                   % - frequency_z*cos(frequency_z*i*dt)]';
-  % Omegad_dot = Euler_Matrix*amplitude*[-(frequency_x^2)*sin(frequency_x*i*dt),...
-                                      %  -(frequency_y^2)*cos(frequency_y*i*dt),...
-                                     % (frequency_z^2)*sin(frequency_z*i*dt)]';
+
+
+   %Omegad :is the deisre angular velocity
+   %Omegad_dot :is the deisre angular acceleration
+
+
+   Omegad = Euler_Matrix*amplitude*[ frequency_x*cos(frequency_x*i*dt),...
+                                    -frequency_y*sin(frequency_y*i*dt),...
+                                    - frequency_z*cos(frequency_z*i*dt)]';
    Omegad_dot = Euler_Matrix*amplitude*[-(frequency_x^2)*sin(frequency_x*i*dt),...
-                                          0,...
-                                            0]';
-    
+                                        -(frequency_y^2)*cos(frequency_y*i*dt),...
+                                      (frequency_z^2)*sin(frequency_z*i*dt)]';
+  
    record_theta(:,i)=Theta_sys;
 
     % Tracking Error
@@ -43,17 +43,19 @@ for i=1:length(t)
     eW = Omega_Error(R_prev_zyx,Rd_zyx,Omegad,Omega_sys_prev);
 
 
-    % The g vector in body frame will change
+    % The g vector in body frame will change as the system's attitude
+    % change
     g_body = Euler_Matrix*g;
    
 
 
-    % Regression matrix
-    g_skew = hat_map(g_body);
-    Y_CoG = m_sys *g_skew;
+    % Regression matrix use to control
+    g_skew = hat_map(g_body); % Rewrite 
+    Y_CoG = m_sys *g_skew;  
     Omega_hat_map = hat_map(Omega_sys_prev);
-    R_rot = eul2rotm(R_prev_zyx);
-    Rd_rot = eul2rotm(Rd_zyx);
+    R_rot = eul2rotm(R_prev_zyx);  % Change the Attitude from Euler angle to Rotation matrix
+    Rd_rot = eul2rotm(Rd_zyx);     % Change the Desire Attitude from Euler angle to Rotation matrix
+
     Omega_bar = Omega_hat_map* R_rot'*Rd_rot*Omegad-R_rot'*Rd_rot*Omegad_dot;...
     Y_J =[Omega_bar(1),Omega_sys_prev(2)*Omega_sys_prev(3),-Omega_sys_prev(2)*Omega_sys_prev(3);...
           -Omega_sys_prev(1)*Omega_sys_prev(3),Omega_bar(2),Omega_sys_prev(1)*Omega_sys_prev(3);...
@@ -81,8 +83,9 @@ for i=1:length(t)
     ICL_term = [0,0,0,0,0,0]';
     ICL_term_prev = ICL_term;
     
-    if i>5000
-        for j=1:500
+    % when time > 1sec the ICL start work
+    if i>1000
+        for j=1:10
             ICL_term = ICL_term_prev + record_y_cl(:,:,i-j)'*(record_m(i-j,:)'-(record_y_cl(:,:,i-j)*Theta_hat_sys_prev));
             ICL_term_prev = ICL_term;
         end
@@ -97,34 +100,25 @@ for i=1:length(t)
     record_ICL_term(:,i) = ICL_term; 
     % Controller and Control-input
     M = -Kr*eR-Kw*eW - Y_sys*Theta_hat_sys;
-    
-     %M = [0,0,0]';
-   % M_p = [M;0];
-   % M = -Kr*eR-Kw*eW - Y_J*Theta_J+Y_CoG*CoG;
-                    
-    % Get R.W Motor Speed.
-   % Omega_dot_mo = -(inv(H_w)/RW_MOI )*M_p;
-   % Omega_mo =  Omega_mo_prev + Omega_dot_mo*dt;
+ 
+    % Officially we should use R.W(Reaction Wheel) as the real control
+    % input,but now we assume we can apply torque on system directly.
 
-    % Record real control input to the system
+
     
-    
-    %
-    ext_Torque = Y_CoG*CoG;
-    
-    %ext_Torque=0;
-    % System dynamic
-   % Omega_sys_dot = inv(MOI)*...
-                       %(ext_Torque-(A_w*RW_MOI*Omega_dot_mo)-...
-                       % cross(Omega_sys_prev,A_w*RW_MOI*Omega_mo)- ...
-                       % cross(Omega_sys_prev,MOI*Omega_sys_prev));
+    %Y_CoG*CoG= rxmg be rewrite as -[mgx]r, [x] notation represent the
+    %hat-map
     Omega_sys_dot = inv(MOI)*...
                        (M-Y_CoG*CoG...
                         -cross(Omega_sys_prev, MOI*Omega_sys_prev));
+
+
     
     Omega_sys = Omega_sys_prev + Omega_sys_dot*dt;
     
     %% Get the Attitude using quaternion integral
+
+    %Ref:https://ahrs.readthedocs.io/en/latest/filters/angular.html
     omega_x =Omega_sys(1);
     omega_y =Omega_sys(2);
     omega_z =Omega_sys(3);
@@ -144,8 +138,9 @@ for i=1:length(t)
         Rq = (Quaternion/q_norm);
     end 
     q0 = Rq;
-    
     r = quat2eul(Rq.');
+
+
 
 
     record_R(i,:) =[r(3),r(2),r(1)];
@@ -155,7 +150,7 @@ for i=1:length(t)
     % Record Attitude,Omega use to next controller parameter
     R_prev = [r(3),r(2),r(1)]; % ORDER "XYZ"
     
-    R_prev_zyx = [r(1),r(2),r(3)];
+    R_prev_zyx = [r(1),r(2),r(3)]; 
     Omega_sys_prev = [Omega_sys(1),Omega_sys(2),Omega_sys(3)]';
 
 end
@@ -175,7 +170,7 @@ plot(ax1, ...
           );
 %title("Roll", FontSize=14);
 xlabel("Time(10ms)", 'FontSize',13);
-ylabel("\psi", 'FontSize',13);
+ylabel("\psi(rad)", 'FontSize',13);
 legend("x,xd");
 
 
@@ -189,7 +184,7 @@ plot(ax2, ...
           );
 %title("Pitch", FontSize=14);
 xlabel("Time(10ms)",'FontSize',13);
-ylabel("\theta", 'FontSize',13);
+ylabel("\theta(rad)", 'FontSize',13);
 legend("y,yd");
 
 
@@ -201,7 +196,7 @@ plot(ax3, ...
           );
 %title("Yaw", FontSize=14);
 xlabel("Time(10ms)", 'FontSize',13);
-ylabel("\phi", 'FontSize',13);
+ylabel("\phi(rad)", 'FontSize',13);
 legend("z,zd");
 sgtitle('Platform Attitude (rad)', 'FontSize', 16);
 
@@ -264,7 +259,7 @@ plot(ax7, ...
 xlabel("Time(10ms)", 'FontSize',13);
 ylabel("kg*m^2", 'FontSize',13);
 legend("J_x(true),J_x(est)");
-sgtitle('J(x)', 'FontSize', 16);
+sgtitle('J(xx)', 'FontSize', 16);
 
 
 
@@ -278,7 +273,7 @@ plot(ax8, ...
 xlabel("Time(10ms)", 'FontSize',13);
 ylabel("kg*m^2", 'FontSize',13);
 legend("J_y(true),J_y(est)");
-sgtitle('J(y)', 'FontSize', 16);
+sgtitle('J(yy)', 'FontSize', 16);
 
 
 ax9 = nexttile;
@@ -291,7 +286,7 @@ plot(ax9, ...
 xlabel("Time(10ms)", 'FontSize',13);
 ylabel("kg*m^2", 'FontSize',13);
 legend("J_z(true),J_z(est)");
-sgtitle('MOI', 'FontSize', 16);
+sgtitle('J(zz)', 'FontSize', 16);
 
 
 % Theta error
@@ -306,7 +301,7 @@ plot(ax10, ...
           t,record_ICL_term(5,1:length(record_ICL_term)),'--',...
           t,record_ICL_term(6,1:length(record_ICL_term)),'_'...
           );
-%title("Yaw", FontSize=14);
+
 xlabel("Time(10ms)", 'FontSize',13);
 ylabel("MoI_ICL(kg*m^2)", 'FontSize',13);
 legend("ICL_MoI(x),ICL_MoI(y),ICL_MoI(z)");
