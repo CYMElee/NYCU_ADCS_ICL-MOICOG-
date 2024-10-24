@@ -6,17 +6,15 @@ initialize;
 for i=1:length(t)
     % Trajectory
 
-   
-  
 
-    Rd = amplitude*[sin(frequency_x*i*dt)...
-                    ,cos(frequency_y*i*dt),...
-                    -sin(frequency_z*i*dt)]';
+  %  Rd = amplitude*[sin(frequency_x*i*dt)...
+                   % ,cos(frequency_y*i*dt),...
+                   % -sin(frequency_z*i*dt)]';
 
 
-   % Rd = amplitude*[0,...
-                 %  0,...
-                  %  -sin(frequency_z*i*dt)]';
+    Rd = amplitude*[sin(frequency_x*i*dt),...
+                   0,...
+                    0]';
     Rd_zyx = [Rd(3),Rd(2),Rd(1)];
     
 
@@ -24,19 +22,19 @@ for i=1:length(t)
                     0,cos(R_prev(1)),sin(R_prev(1))*cos(R_prev(2));...
                     0,-sin(R_prev(1)),cos(R_prev(1))*cos(R_prev(2))];
    
-   %  Omegad = Euler_Matrix*amplitude*[0,...
-                                   % 0,...
-                                   % -frequency_z*cos(frequency_z*i*dt)]';
+    Omegad = Euler_Matrix*amplitude*[frequency_x*cos(frequency_x*i*dt),...
+                                    0,...
+                                    0]';
 
-   Omegad = Euler_Matrix*amplitude*[ frequency_x*cos(frequency_x*i*dt),...
-                                    -frequency_y*sin(frequency_y*i*dt),...
-                                    - frequency_z*cos(frequency_z*i*dt)]';
+  % Omegad = Euler_Matrix*amplitude*[ frequency_x*cos(frequency_x*i*dt),...
+                                   % -frequency_y*sin(frequency_y*i*dt),...
+                                   % - frequency_z*cos(frequency_z*i*dt)]';
+  % Omegad_dot = Euler_Matrix*amplitude*[-(frequency_x^2)*sin(frequency_x*i*dt),...
+                                      %  -(frequency_y^2)*cos(frequency_y*i*dt),...
+                                     % (frequency_z^2)*sin(frequency_z*i*dt)]';
    Omegad_dot = Euler_Matrix*amplitude*[-(frequency_x^2)*sin(frequency_x*i*dt),...
-                                        -(frequency_y^2)*cos(frequency_y*i*dt),...
-                                      (frequency_z^2)*sin(frequency_z*i*dt)]';
-  % Omegad_dot = Euler_Matrix*amplitude*[0,...
-                                      %   0,...
-                                      %  (frequency_z^2)*sin(frequency_z*i*dt)]';
+                                          0,...
+                                            0]';
     
    record_theta(:,i)=Theta_sys;
 
@@ -56,7 +54,7 @@ for i=1:length(t)
     Omega_hat_map = hat_map(Omega_sys_prev);
     R_rot = eul2rotm(R_prev_zyx);
     Rd_rot = eul2rotm(Rd_zyx);
-    Omega_bar = Omega_hat_map* R_rot'*Rd_rot-R_rot'*Rd_rot*Omegad_dot;...
+    Omega_bar = Omega_hat_map* R_rot'*Rd_rot*Omegad-R_rot'*Rd_rot*Omegad_dot;...
     Y_J =[Omega_bar(1),Omega_sys_prev(2)*Omega_sys_prev(3),-Omega_sys_prev(2)*Omega_sys_prev(3);...
           -Omega_sys_prev(1)*Omega_sys_prev(3),Omega_bar(2),Omega_sys_prev(1)*Omega_sys_prev(3);...
             Omega_sys_prev(1)*Omega_sys_prev(2),-Omega_sys_prev(1)*Omega_sys_prev(2),Omega_bar(3)];
@@ -81,25 +79,26 @@ for i=1:length(t)
 
    % record_m(i,:) = (- A_w*RW_MOI*Omega_dot_mo -cross(Omega_sys_prev,A_w*RW_MOI*Omega_mo_prev))*dt;
     ICL_term = [0,0,0,0,0,0]';
-    ICL_term_prev = [0,0,0,0,0,0]';
+    ICL_term_prev = ICL_term;
     
-    if i>100
-        for j=1:10
+    if i>5000
+        for j=1:500
             ICL_term = ICL_term_prev + record_y_cl(:,:,i-j)'*(record_m(i-j,:)'-(record_y_cl(:,:,i-j)*Theta_hat_sys_prev));
             ICL_term_prev = ICL_term;
         end
     end
-    %ICL_term = [0,0,0,0,0,0]';
+    
     Theta_hat_dot_sys = gamma*Y_sys'*(eW+C1*eR)+kcl*gamma*ICL_term;
     
     % Update the estimate value
     Theta_hat_sys = Theta_hat_sys_prev+Theta_hat_dot_sys*dt;
     Theta_hat_sys_prev = Theta_hat_sys;
     record_theta_hat(:,i) = Theta_hat_sys;
+    record_ICL_term(:,i) = ICL_term; 
     % Controller and Control-input
     M = -Kr*eR-Kw*eW - Y_sys*Theta_hat_sys;
     
-   %M = [0,0,0]';
+     %M = [0,0,0]';
    % M_p = [M;0];
    % M = -Kr*eR-Kw*eW - Y_J*Theta_J+Y_CoG*CoG;
                     
@@ -148,11 +147,7 @@ for i=1:length(t)
     
     r = quat2eul(Rq.');
 
-    %% %% Get the Attitude using Euler angle integral
-    
 
-    % Record Attitude,Omega use to plot.Because the return sequence for
-    % fun"quat2eul" is "ZYX" so r(3)="X",r(2)="Y",r(1)="Z"
     record_R(i,:) =[r(3),r(2),r(1)];
    
     record_Rd(i,:)=Rd';
@@ -298,5 +293,23 @@ ylabel("kg*m^2", 'FontSize',13);
 legend("J_z(true),J_z(est)");
 sgtitle('MOI', 'FontSize', 16);
 
+
+% Theta error
+
+
+
+figure
+ax10 = nexttile;
+
+plot(ax10, ...  
+          t, record_ICL_term(4,1:length(record_ICL_term)),'-',...
+          t,record_ICL_term(5,1:length(record_ICL_term)),'--',...
+          t,record_ICL_term(6,1:length(record_ICL_term)),'_'...
+          );
+%title("Yaw", FontSize=14);
+xlabel("Time(10ms)", 'FontSize',13);
+ylabel("MoI_ICL(kg*m^2)", 'FontSize',13);
+legend("ICL_MoI(x),ICL_MoI(y),ICL_MoI(z)");
+sgtitle('MoI_ICL_term', 'FontSize', 16);
 
 
