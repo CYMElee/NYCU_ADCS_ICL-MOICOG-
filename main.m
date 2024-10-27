@@ -11,6 +11,10 @@ for i=1:length(t)
                     ,cos(frequency_y*i*dt),...
                     -sin(frequency_z*i*dt)]';
 
+      %  Rd = amplitude*[0,...
+                   % cos(frequency_y*i*dt),...
+                   % 0]';
+
 
     Rd_zyx = [Rd(3),Rd(2),Rd(1)];
     
@@ -32,9 +36,16 @@ for i=1:length(t)
    Omegad = Euler_Matrix*amplitude*[ frequency_x*cos(frequency_x*i*dt),...
                                     -frequency_y*sin(frequency_y*i*dt),...
                                     - frequency_z*cos(frequency_z*i*dt)]';
+
+     % Omegad = Euler_Matrix*amplitude*[0,...
+                                   % -frequency_y*sin(frequency_y*i*dt),...
+                                   % 0]';
    Omegad_dot = Euler_Matrix*amplitude*[-(frequency_x^2)*sin(frequency_x*i*dt),...
                                         -(frequency_y^2)*cos(frequency_y*i*dt),...
                                       (frequency_z^2)*sin(frequency_z*i*dt)]';
+     % Omegad_dot = Euler_Matrix*amplitude*[0,...
+                                    %   -(frequency_y^2)*cos(frequency_y*i*dt),...
+                                    % 0]';
   
    record_theta(:,i)=Theta_sys;
 
@@ -67,15 +78,18 @@ for i=1:length(t)
 
 
     % Regression matrix use for Estimate
-    Y_J_cl = [Omega_sys_dot_prev(1),-Omega_sys_prev(2)*Omega_sys_prev(3),Omega_sys_prev(2)*Omega_sys_prev(3) ;...
-              Omega_sys_prev(1)*Omega_sys_prev(3) ,Omega_sys_dot_prev(2),-Omega_sys_prev(1)*Omega_sys_prev(3);...
-              -Omega_sys_prev(1)*Omega_sys_prev(2) ,Omega_sys_prev(1)*Omega_sys_prev(2),Omega_sys_dot_prev(3)];
-    Y_sys_cl = [Y_CoG,Y_J_cl];
+    Y_J_cl = [0,-Omega_sys_prev(2)*Omega_sys_prev(3),Omega_sys_prev(2)*Omega_sys_prev(3) ;...
+              Omega_sys_prev(1)*Omega_sys_prev(3) ,0,-Omega_sys_prev(1)*Omega_sys_prev(3);...
+              -Omega_sys_prev(1)*Omega_sys_prev(2) ,Omega_sys_prev(1)*Omega_sys_prev(2),0];
+    Y_omega_dot = [Omega_sys_dot_prev(1),0,0;...
+        0,Omega_sys_dot_prev(2),0;...
+        0,0,Omega_sys_dot_prev(3)];
+    Y_sys_cl = [Y_CoG*dt,Y_J_cl*dt+Y_omega_dot];
     % integral y_sys_cl from delta t to t
-    
-  
 
-    record_y_cl(:,:,i) = (Y_sys_cl*dt);
+
+    
+    record_y_cl(:,:,i) = (Y_sys_cl);
     record_m(i,:) = (M*dt);
     
 
@@ -84,9 +98,9 @@ for i=1:length(t)
     ICL_term_prev = ICL_term;
     
     % when time > 1sec the ICL start work
-    if i>1000
-        for j=1:10
-            ICL_term = ICL_term_prev + record_y_cl(:,:,i-j)'*(record_m(i-j,:)'-(record_y_cl(:,:,i-j)*Theta_hat_sys_prev));
+    if i>100
+        for j=1:100
+            ICL_term = ICL_term_prev + record_y_cl(:,:,i)'*(record_m(i,:)'-(record_y_cl(:,:,i)*Theta_hat_sys_prev));
             ICL_term_prev = ICL_term;
         end
     end
@@ -94,7 +108,7 @@ for i=1:length(t)
     Theta_hat_dot_sys = gamma*Y_sys'*(eW+C1*eR)+kcl*gamma*ICL_term;
     
     % Update the estimate value
-    Theta_hat_sys = Theta_hat_sys_prev+Theta_hat_dot_sys*dt;
+    Theta_hat_sys = Theta_hat_sys_prev+Theta_hat_dot_sys;
     Theta_hat_sys_prev = Theta_hat_sys;
     record_theta_hat(:,i) = Theta_hat_sys;
     record_ICL_term(:,i) = ICL_term; 

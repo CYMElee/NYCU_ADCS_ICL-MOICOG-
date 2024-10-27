@@ -14,14 +14,14 @@ MOI = [7.13,0,0;...
        0,7.09,0;...
        0,0,7.13];
 % CoG offect
-CoG = [0,0.001,-0.005]'; %units:m
+CoG = [-0.001,0.001,-0.05]'; %units:m
 
 % use to constrain the trajectory amplitude 
-amplitude = 0.6;
+amplitude = 1;
 % use to constrain the trajectory frequency 
-frequency_x =0.01;
-frequency_y = 0.06;
-frequency_z = 0.04;
+frequency_x =0.2;
+frequency_y = 0.6;
+frequency_z = 0.5;
 
  
 
@@ -107,12 +107,11 @@ record_ICL_term = zeros(6,length(t));
 
 %% Controller
 %Controller control gain
-Kr=10*eye(3);
-Kw=8*eye(3);
-C1=0.5;
+Kr=25*eye(3);
+Kw=20*eye(3);
+C1=3.5;
 
 %%Estimater
-gamma = diag([0.02,0.02,0.02,0.3,0.03,0.03]);
-kcl=diag([0.05,0.05,0.05,0.05,0.05,0.05]);
-
+gamma = diag([0.0000005,0.0000005,0.0000005,0.0000000005,0.000000005,0.0000000005]);
+kcl=diag([5000,5000,5000,500000,5000000,500000]);
 
