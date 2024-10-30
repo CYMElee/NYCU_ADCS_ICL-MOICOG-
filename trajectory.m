@@ -1,69 +1,65 @@
 classdef trajectory
    methods
-       function desired = traj_generate(obj, t,type)
-        if type == "circle"
+       function desired = traj_generate(obj, t,type,platform)
+        
+       R_now = reshape(platform.R(:,t-1), 3, 3);
+
+       R_now_euler = rotm2eul(R_now);
+       Euler_Matrix = [1,0,-sin(R_now_euler(2));...
+                    0,cos(R_now_euler(1)),sin(R_now_euler(1))*cos(R_now_euler(2));...
+                    0,-sin(R_now_euler(1)),cos(R_now_euler(1))*cos(R_now_euler(2))];
+        
+      frequency_x =0.2;
+      frequency_y = 0.6;
+      frequency_z = 0.5;
+      amplitude = 0.6;
+
+        if type == "twist"
 %            % xd, vd, b1d
            % xd
-           constant = 3;
-           desired_pose = zeros(3,1);
-           desired_pose(1) = cos(constant*1*t);
-           desired_pose(2) = sin(constant*1*t);
-           desired_pose(3) = -1;
+         
+           desired_attitude = zeros(3,1);
+
+           desired_attitude  = amplitude*[sin(frequency_x*t)...
+                    ,cos(frequency_y*t),...
+                    -sin(frequency_z*t)]';
 %            % vd
-           desired_velocity = zeros(3,1);
-           desired_velocity(1) = -constant*sin(constant*1*t);
-           desired_velocity(2) = constant*cos(constant*1*t);
-           desired_velocity(3) = 0;
+           desired_angular_velocity = zeros(3,1);
+
+           omegad =amplitude*[    frequency_x*cos(frequency_x*t);...    
+                         -frequency_y*sin(frequency_y*t);...
+                         - frequency_z*cos(frequency_z*t)];
+
+
+           desired_angular_velocity = Euler_Matrix*omegad;
 %            % ad
-           desired_acceleration = zeros(3,1);
-           desired_acceleration(1) = -constant^2*cos(constant*1*t);
-           desired_acceleration(2) = -constant^2*sin(constant*1*t);
-           desired_acceleration(3) = 0;
-%            % jd
-           desired_jerk = zeros(3,1);
-           desired_jerk(1) = constant^3*sin(constant*1*t);
-           desired_jerk(2) = -constant^3*cos(constant*1*t);
-           desired_jerk(3) = 0;
-%            % sd
-           desired_snap = zeros(3,1);
-           desired_snap(1) = constant^4*cos(constant*1*t);
-           desired_snap(2) = constant^4*sin(constant*1*t);
-           desired_snap(3) = 0;
-%            % b1d
-            desired_b1 = [cos(constant*1*t);sin(constant*1*t);0];          
-%            % b1d_dot
-            desired_b1_dot = [-constant*sin(constant*1*t);constant*cos(constant*1*t);0];
-%            % b1d_ddot
-            desired_b1_ddot = [-constant^2*cos(constant*1*t);-constant^2*sin(constant*1*t);0];   
-            desired_b1 = [1;0;0];
-            %            % b1d_dot
-            desired_b1_dot = [0;0;0]; 
-%            % b1d_ddot
-            desired_b1_ddot = [0;0;0];  
+           desired_angular_acceleration = zeros(3,1);
+
+           omegad_dot =amplitude*[ -(frequency_x^2)*sin(frequency_x*t);...    
+                           -(frequency_y^2)*cos(frequency_y*t);...
+                         (frequency_z^2)*sin(frequency_z*t)];            
+
+           desired_angular_acceleration = Euler_Matrix*omegad_dot;
+           
+ 
             %% fix pose
-        elseif type == "position"
-            desired_pose = zeros(3,1);
-            desired_pose(1) = -0.5;
-            desired_pose(2) = 0;
-            desired_pose(3) = -1;
-            desired_velocity = zeros(3,1);
-            desired_velocity(1) = 0;
-            desired_velocity(2) = 0;
-            desired_velocity(3) = 0;
-            desired_acceleration = zeros(3,1);
-            desired_acceleration(1) = 0;
-            desired_acceleration(2) = 0;
-            desired_acceleration(3) = 0;
-           desired_jerk = zeros(3,1);
-           desired_snap = zeros(3,1);
-            desired_b1 = [1;0;0];
-            %            % b1d_dot
-            desired_b1_dot = [0;0;0]; 
-%            % b1d_ddot
-            desired_b1_ddot = [0;0;0];      
+        elseif type == "origion"
+            desired_attitude = zeros(3,1);
+            desired_attitude(1) = 0;
+            desired_attitude(2) = 0;
+            desired_attitude(3) = 0;
+            desired_angular_velocity = zeros(3,1);
+            desired_angular_velocity(1) = 0;
+            desired_angular_velocity(2) = 0;
+            desired_angular_velocity(3) = 0;
+            desired_angular_acceleration = zeros(3,1);
+            desired_angular_acceleration(1) = 0;
+            desired_angular_acceleration(2) = 0;
+            desired_angular_acceleration(3) = 0;
+   
         end
 %% return
-            desired = [desired_pose,desired_velocity,desired_acceleration,desired_jerk,desired_snap,desired_b1,desired_b1_dot,desired_b1_ddot];
+            desired = [desired_attitude,desired_angular_velocity,desired_angular_acceleration];
        end
    end
 end
