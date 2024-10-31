@@ -14,7 +14,7 @@ MOI = [7.13,0,0;...
        0,7.09,0;...
        0,0,7.13];
 % CoG offect
-CoG = [-0.001,0.001,-0.05]'; %units:m
+CoG = [0.01,0,-0.05]'; %units:m
 
 % use to constrain the trajectory amplitude 
 amplitude = 1;

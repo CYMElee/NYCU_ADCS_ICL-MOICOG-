@@ -114,7 +114,7 @@ for i=1:length(t)
     record_ICL_term(:,i) = ICL_term; 
     % Controller and Control-input
     M = -Kr*eR-Kw*eW - Y_sys*Theta_hat_sys;
- 
+     
     % Officially we should use R.W(Reaction Wheel) as the real control
     % input,but now we assume we can apply torque on system directly.
 
@@ -123,7 +123,7 @@ for i=1:length(t)
     %Y_CoG*CoG= rxmg be rewrite as -[mgx]r, [x] notation represent the
     %hat-map
     Omega_sys_dot = inv(MOI)*...
-                       (M-Y_CoG*CoG...
+                       (-Y_CoG*CoG...
                         -cross(Omega_sys_prev, MOI*Omega_sys_prev));
 
 
