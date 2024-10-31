@@ -4,7 +4,7 @@ close all;
 addpath('geometry-toolbox')
 %% set drone parameters
 % simulation time
-dt = 1/1000;
+dt = 1/400;
 sim_t =40;
 
 platform1 = platform_dynamic;
@@ -14,9 +14,9 @@ platform1.t = 0:dt:sim_t;     %every time stamps
 
 
 platform1.m = 74.33;
-platform1.J = [7.13, -0.05, -0.04;...
-               -0.05, 7.09, 0.03;...
-               -0.04, 0.03, 7.13];
+platform1.J = [7.13, 0, 0;...
+               0, 7.09, 0;...
+               0, 0, 7.13];
 
 
 %use to trans motor torque to platform 
@@ -48,6 +48,11 @@ contorl_output_array_platform1 = zeros(3, length(platform1.t));
 dX_platform1 = zeros(12, 1);
 
 
+%% create attitude array use to plot
+
+
+
+
 
 %% initial state
 platform1.R(:, 1) = [1; 0; 0; 0; 1; 0; 0; 0; 1];  %initial attitude
@@ -71,7 +76,7 @@ traj = trajectory;
    
        
         
-       platform1.pc_2_mc = [0;0;0]; % distance between center of rotation and center of mass
+ platform1.pc_2_mc = [0.001;0;-0.005]; % distance between center of rotation and center of mass
 
 
    
@@ -79,8 +84,8 @@ traj = trajectory;
               
  %% start iteration
 
-traj_type = "twist";   %"circle","position"
-controller_type = "ICL";   %"origin","EMK","adaptive","ICL"
+traj_type = "origion";   %"circle","position"
+controller_type = "adaptive";   %"origin","EMK","adaptive","ICL"
 
 control_output_platform1  = zeros(3,1);
 
@@ -89,6 +94,7 @@ control_output_platform1  = zeros(3,1);
 for i = 2:length(platform1.t)
     disp(i)
     t_now = platform1.t(i);
+    platform1.Euler_Matrix = platform1.get_euler_matrix(i);
     desired = traj.traj_generate(t_now,i,traj_type,platform1);
 
     % calculate control force
@@ -103,7 +109,8 @@ for i = 2:length(platform1.t)
 
 
   
-    real_control_torque_platform1 = [control_output_platform1(1);control_output_platform1(2);control_output_platform1(3)];
+    %real_control_torque_platform1 = [control_output_platform1(1);control_output_platform1(2);control_output_platform1(3)];
+    real_control_torque_platform1 = [0;0;0];
   
 
 
@@ -114,13 +121,17 @@ for i = 2:length(platform1.t)
         reshape(reshape(platform1.R(:, i-1), 3, 3), 9, 1);...
         platform1.W(:, i-1)];
     
-    T_ext = cross(platform1.pc_2_mc,platform1.m*reshape(platform1.R(:, i-1), 3, 3)*[0;0;-9.81]);
+   
+    % get the Euler Metrix
+
+
+
+    T_ext=cross(platform1.pc_2_mc,platform1.m*platform1.Euler_Matrix*[0;0;-9.81]);
     disp(T_ext);
- 
+
 
     [T_platform1, X_new_platform1] = ode45(@(t, x) platform1.dynamics( x, real_control_torque_platform1,T_ext), [0, dt], X0_platform1);
     
-   
     dX_platform1 = platform1.dynamics(X0_platform1 , real_control_torque_platform1,T_ext);
     
     

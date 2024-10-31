@@ -42,8 +42,6 @@ classdef controller
                 R_now = reshape(platform.R(:,iteration-1), 3, 3);
                 W_now = platform.W(:,iteration-1);
                 
-                
-
 
                 R_d = eul2rotm(desired(:,1)',"XYZ");
 
@@ -55,7 +53,7 @@ classdef controller
                 eR = 0.5*vee((R_d'*R_now-R_now'*R_d));     % error R
                 eW = W_now-R_now'*R_d*W_d;
                   
-                g_body = R_now*[0;0;-9.81];
+                g_body = platform.Euler_Matrix*[0;0;-9.81];
 
                 if type == "adaptive"
                     o_b = W_hat*R_now'*R_d*W_d - R_now'*R_d*W_d_dot; %omega_bar
@@ -72,7 +70,7 @@ classdef controller
                     Y2 = [ -o_b(1) ,-W_now(2)*W_now(3) ,W_now(2)*W_now(3) ,-o_b(2)-W_now(1)*W_now(3) ,-o_b(3)+W_now(1)*W_now(2), -W_now(3)^2 + W_now(2)^2 ;...
                            W_now(1)*W_now(3), -o_b(2) ,-W_now(1)*W_now(3) ,-o_b(1)+W_now(2)*W_now(3) ,-W_now(1)^2 + W_now(3)^2 , -o_b(3)-W_now(1)*W_now(2);...
                            -W_now(1)*W_now(2) ,W_now(1)*W_now(2), -o_b(3) ,-W_now(2)^2 + W_now(1)^2  ,-o_b(1)-W_now(2)*W_now(3), -o_b(2)+W_now(1)*W_now(3)];
-                    Y = [Y2,-Y1];
+                    Y = [Y2,Y1];
                        
                        obj.theta_hat_dot = -obj.gamma*Y'*(eW+obj.c2*eR);  
 
@@ -94,7 +92,6 @@ classdef controller
                    Y2 = [ -o_b(1) ,-W_now(2)*W_now(3) ,W_now(2)*W_now(3) ,-o_b(2)-W_now(1)*W_now(3) ,-o_b(3)+W_now(1)*W_now(2), -W_now(3)^2 + W_now(2)^2 ;...
                            W_now(1)*W_now(3), -o_b(2) ,-W_now(1)*W_now(3) ,-o_b(1)+W_now(2)*W_now(3) ,-W_now(1)^2 + W_now(3)^2 , -o_b(3)-W_now(1)*W_now(2);...
                            -W_now(1)*W_now(2) ,W_now(1)*W_now(2), -o_b(3) ,-W_now(2)^2 + W_now(1)^2  ,-o_b(1)-W_now(2)*W_now(3), -o_b(2)+W_now(1)*W_now(3)];
-                    
 
                    Y = [Y2,Y1];
 

@@ -26,6 +26,7 @@ classdef platform_dynamic
         eR
         eW
         % control input
+        Euler_Matrix = zeros(3,3);
 
     end
     
@@ -43,7 +44,15 @@ classdef platform_dynamic
             dX(1:9) = reshape(dR, 9, 1);
             dX(10:12) = dW;
         end
+
+        function Euler_Matrix = get_euler_matrix(obj,iteration)
+            R_now = reshape(obj.R(:,iteration-1), 3, 3);
+            R_now_euler = rotm2eul(R_now,"XYZ");
+            Euler_Matrix = [1,0,-sin(R_now_euler(2));...
+                    0,cos(R_now_euler(1)),sin(R_now_euler(1))*cos(R_now_euler(2));...
+                    0,-sin(R_now_euler(1)),cos(R_now_euler(1))*cos(R_now_euler(2))];
         
+        end
 
     end
 end
