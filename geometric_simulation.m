@@ -4,8 +4,8 @@ close all;
 addpath('geometry-toolbox')
 %% set drone parameters
 % simulation time
-dt = 1/400;
-sim_t =40;
+dt = 1/1000;
+sim_t =120;
 
 platform1 = platform_dynamic;
 platform1.dt = dt;            %delta t
@@ -76,7 +76,7 @@ traj = trajectory;
    
        
         
- platform1.pc_2_mc = [0.001;0;-0.005]; % distance between center of rotation and center of mass
+ platform1.pc_2_mc = [0.005;-0.005;-0.005]; % distance between center of rotation and center of mass
 
 
    
@@ -84,8 +84,8 @@ traj = trajectory;
               
  %% start iteration
 
-traj_type = "origion";   %"circle","position"
-controller_type = "adaptive";   %"origin","EMK","adaptive","ICL"
+traj_type = "twist";   %"circle","position"
+controller_type = "ICL";   %"origin","EMK","adaptive","ICL"
 
 control_output_platform1  = zeros(3,1);
 
@@ -109,8 +109,8 @@ for i = 2:length(platform1.t)
 
 
   
-    %real_control_torque_platform1 = [control_output_platform1(1);control_output_platform1(2);control_output_platform1(3)];
-    real_control_torque_platform1 = [0;0;0];
+    real_control_torque_platform1 = [control_output_platform1(1);control_output_platform1(2);control_output_platform1(3)];
+
   
 
 
@@ -128,6 +128,8 @@ for i = 2:length(platform1.t)
 
     T_ext=cross(platform1.pc_2_mc,platform1.m*platform1.Euler_Matrix*[0;0;-9.81]);
     disp(T_ext);
+    disp("control input");
+    disp(real_control_torque_platform1);
 
 
     [T_platform1, X_new_platform1] = ode45(@(t, x) platform1.dynamics( x, real_control_torque_platform1,T_ext), [0, dt], X0_platform1);
@@ -197,7 +199,7 @@ axis([-inf inf -1 1])
 figure('Name','inertia estimation result');
 
 subplot(6,1,1);
-plot(platform1.t(2:end), real_theta_array_platform1(1,2:end)-theta_array_platform1(1,2:end),"LineWidth",2,'Color',[0 0.5 1]);
+plot(platform1.t(2:end), theta_array_platform1(1,2:end),"LineWidth",2,'Color',[0 0.5 1]);
 grid on;
 ylabel(' $\tilde{\theta}_{J,xx}[kgm^2]$','interpreter','latex','FontSize',16);
 title('$Estimation\ Errors\ of\ the\ MoI$','interpreter','latex', 'FontSize', 24);
@@ -205,31 +207,31 @@ axis([-inf inf -0.1 0.1])
 
 
 subplot(6,1,2);
-plot(platform1.t(2:end), real_theta_array_platform1(2,2:end)-theta_array_platform1(2,2:end),"LineWidth",2,'Color',[0 0.5 1]);
+plot(platform1.t(2:end), theta_array_platform1(2,2:end),"LineWidth",2,'Color',[0 0.5 1]);
 grid on;
 ylabel(' $\tilde{\theta}_{J,yy}[kgm^2]$','interpreter','latex','FontSize',16);
 axis([-inf inf -0.1 0.1])
 
 subplot(6,1,3);
-plot(platform1.t(2:end), real_theta_array_platform1(3,2:end)-theta_array_platform1(3,2:end),"LineWidth",2,'Color',[0 0.5 1]);
+plot(platform1.t(2:end), theta_array_platform1(3,2:end),"LineWidth",2,'Color',[0 0.5 1]);
 grid on;
 ylabel(' $\tilde{\theta}_{J,zz}[kgm^2]$','interpreter','latex','FontSize',16);
 axis([-inf inf -0.1 0.1])
 
 subplot(6,1,4);
-plot(platform1.t(2:end), theta_array_platform1(4,2:end)-real_theta_array_platform1(4,2:end),"LineWidth",2,'Color',[0 0.5 1]);
+plot(platform1.t(2:end), theta_array_platform1(4,2:end),"LineWidth",2,'Color',[0 0.5 1]);
 grid on;
 ylabel(' $\tilde{\theta}_{J,xy}[kgm^2]$','interpreter','latex','FontSize',16);
 axis([-inf inf -0.1 0.1])
 
 subplot(6,1,5);
-plot(platform1.t(2:end), theta_array_platform1(5,2:end)-real_theta_array_platform1(5,2:end),"LineWidth",2,'Color',[0 0.5 1]);
+plot(platform1.t(2:end), theta_array_platform1(5,2:end),"LineWidth",2,'Color',[0 0.5 1]);
 grid on;
 ylabel(' $\tilde{\theta}_{J,xz}[kgm^2]$','interpreter','latex','FontSize',16);
 axis([-inf inf -0.1 0.1])
 
 subplot(6,1,6);
-plot(platform1.t(2:end), theta_array_platform1(6,2:end)-real_theta_array_platform1(6,2:end),"LineWidth",2,'Color',[0 0.5 1]);
+plot(platform1.t(2:end), theta_array_platform1(6,2:end),"LineWidth",2,'Color',[0 0.5 1]);
 grid on;
 ylabel(' $\tilde{\theta}_{J,yz}[kgm^2]$','interpreter','latex','FontSize',16);
 xlabel(' $t[s]$','interpreter','latex','FontSize',24);
@@ -238,20 +240,20 @@ axis([-inf inf -0.1 0.1])
 %% theta CoG
 figure('Name','CoG estimation result');
 subplot(3,1,1);
-plot(platform1.t(2:end), theta_array_platform1(7,2:end)-real_theta_array_platform1(7,2:end),"LineWidth",2,'Color',[0 0.5 1]);
+plot(platform1.t(2:end), theta_array_platform1(7,2:end),"LineWidth",2,'Color',[0 0.5 1]);
 grid on;
 ylabel(' $\tilde{\theta}_{r_{M/B_{x}}}[kgm^2]$','interpreter','latex','FontSize',24);
 title('$Estimation\ Errors\ of\ the\ CoG$','interpreter','latex', 'FontSize', 24);
 axis([-inf inf -0.1 0.1])
 
 subplot(3,1,2);
-plot(platform1.t(2:end), theta_array_platform1(8,2:end)-real_theta_array_platform1(8,2:end),"LineWidth",2,'Color',[0 0.5 1]);
+plot(platform1.t(2:end), theta_array_platform1(8,2:end),"LineWidth",2,'Color',[0 0.5 1]);
 grid on;
 ylabel(' $\tilde{\theta}_{r_{M/B_{y}}}[kgm^2]$','interpreter','latex','FontSize',24);
 
 
 subplot(3,1,3);
-plot(platform1.t(2:end), theta_array_platform1(9,2:end)-real_theta_array_platform1(9,2:end),"LineWidth",2,'Color',[0 0.5 1]);
+plot(platform1.t(2:end), theta_array_platform1(9,2:end),"LineWidth",2,'Color',[0 0.5 1]);
 grid on;
 ylabel(' $\tilde{\theta}_{r_{M/B_{z}}}[kgm^2]$','interpreter','latex','FontSize',24);
 xlabel(' $t[s]$','interpreter','latex','FontSize',24);

@@ -1,17 +1,17 @@
 classdef controller
     properties
   
-         kR = 15*eye(3);
-         kW = 10*eye(3);
+         kR = 20*eye(3);
+         kW = 15*eye(3);
          
          M = [0;0;0];
          %% adaptive
 
          theta = [0;0;0;0;0;0;0;0;0];
 
-         gamma =  diag([0.000005,0.000005,0.000005,0.000005,0.000005,0.000005,0.000005,0.000005,0.000005]);
+         gamma =  diag([0.0000005,0.0000005,0.0000005,0.0000005,0.0000005,0.0000005,0.0000005,0.0000005,0.0000005]);
 
-         c2 = 6.5
+         c2 = 1.5
         %% ICL
         Y_icl_last = zeros(3,9,5);
         M_icl_last = zeros(3,5);
@@ -21,7 +21,7 @@ classdef controller
         
         last_R = [1 0 0;0 1 0;0 0 1]
 
-         k_icl =  diag([2200,2220,2220,2220,2220,2220,2220,2220,2220])*5;
+        k_icl =  diag([5000000000,5000000000,5000000000,5000000000,5000000000,5000000000,5000000,5000000,5000000]);
 
         N = 20;      
         
@@ -60,21 +60,19 @@ classdef controller
                     
                     
                     
-                    Y1 = [   0   -platform.m*g_body(3)  platform.m*g_body(2);...
-                    platform.m*g_body(3)   0               -platform.m*g_body(1);...
-                    -platform.m*g_body(2)   platform.m*g_body(1)   0];
+                    Y1 = hat(platform.m*g_body);
                 
                 
                 
                    
-                    Y2 = [ -o_b(1) ,-W_now(2)*W_now(3) ,W_now(2)*W_now(3) ,-o_b(2)-W_now(1)*W_now(3) ,-o_b(3)+W_now(1)*W_now(2), -W_now(3)^2 + W_now(2)^2 ;...
-                           W_now(1)*W_now(3), -o_b(2) ,-W_now(1)*W_now(3) ,-o_b(1)+W_now(2)*W_now(3) ,-W_now(1)^2 + W_now(3)^2 , -o_b(3)-W_now(1)*W_now(2);...
-                           -W_now(1)*W_now(2) ,W_now(1)*W_now(2), -o_b(3) ,-W_now(2)^2 + W_now(1)^2  ,-o_b(1)-W_now(2)*W_now(3), -o_b(2)+W_now(1)*W_now(3)];
+                   Y2 = [ -o_b(1) ,-W_now(2)*W_now(3) ,W_now(2)*W_now(3) ,-o_b(2)-W_now(1)*W_now(3) ,-o_b(3)-W_now(1)*W_now(2), -W_now(3)^2 + W_now(2)^2 ;...
+                           W_now(1)*W_now(3), -o_b(2) ,-W_now(1)*W_now(3) ,-o_b(1)-W_now(2)*W_now(3) ,-W_now(1)^2 + W_now(3)^2 , -o_b(3)-W_now(1)*W_now(2);...
+                           -W_now(1)*W_now(2) ,W_now(1)*W_now(2), -o_b(3) ,-W_now(2)^2 + W_now(1)^2  ,-o_b(1)-W_now(2)*W_now(3), -o_b(2)-W_now(1)*W_now(3)];
                     Y = [Y2,Y1];
                        
                        obj.theta_hat_dot = -obj.gamma*Y'*(eW+obj.c2*eR);  
 
-                       obj.theta = obj.theta + obj.theta_hat_dot;
+                       obj.theta = obj.theta + obj.theta_hat_dot*platform.dt;
 
                        obj.M = -obj.kR * eR - obj.kW*eW + Y*obj.theta;
 
@@ -89,7 +87,7 @@ classdef controller
                     -platform.m*g_body(2)   platform.m*g_body(1)   0];
 
 
-                   Y2 = [ -o_b(1) ,-W_now(2)*W_now(3) ,W_now(2)*W_now(3) ,-o_b(2)-W_now(1)*W_now(3) ,-o_b(3)+W_now(1)*W_now(2), -W_now(3)^2 + W_now(2)^2 ;...
+                    Y2 = [ -o_b(1) ,-W_now(2)*W_now(3) ,W_now(2)*W_now(3) ,-o_b(2)-W_now(1)*W_now(3) ,-o_b(3)+W_now(1)*W_now(2), -W_now(3)^2 + W_now(2)^2 ;...
                            W_now(1)*W_now(3), -o_b(2) ,-W_now(1)*W_now(3) ,-o_b(1)+W_now(2)*W_now(3) ,-W_now(1)^2 + W_now(3)^2 , -o_b(3)-W_now(1)*W_now(2);...
                            -W_now(1)*W_now(2) ,W_now(1)*W_now(2), -o_b(3) ,-W_now(2)^2 + W_now(1)^2  ,-o_b(1)-W_now(2)*W_now(3), -o_b(2)+W_now(1)*W_now(3)];
 
@@ -165,7 +163,7 @@ classdef controller
                     obj.last_W = W_now;
                 
                     obj.last_R = R_now;
-                    obj.theta = obj.theta + obj.theta_hat_dot;
+                    obj.theta = obj.theta + obj.theta_hat_dot*platform.dt;
                     obj.M = -obj.kR * eR - obj.kW*eW + Y*obj.theta;
                     
 

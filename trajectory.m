@@ -3,10 +3,12 @@ classdef trajectory
        function desired = traj_generate(obj, t,iteration,type,platform)
         
 
-      frequency_x =0.2;
-      frequency_y = 0.6;
-      frequency_z = 0.5;
-      amplitude = 0.6;
+      frequency_x = 0.3;
+      frequency_y = 0.3;
+      frequency_z = 0.01;
+      amplitude_x = 0.6;
+      amplitude_y = 0.6;
+      amplitude_z = 3.14;
 
         if type == "twist"
 %            % xd, vd, b1d
@@ -14,24 +16,36 @@ classdef trajectory
          
         
 
-           desired_attitude  = amplitude*[sin(frequency_x*t)...
-                    ,cos(frequency_y*t),...
-                    -sin(frequency_z*t)]';
-%            % vd
+           desired_attitude  =[ amplitude_x*sin(frequency_x*t)...
+                    ,amplitude_y*cos(frequency_y*t),...
+                    amplitude_z*(-sin(frequency_z*t))]';
+
+     
+
+
            
 
-           omegad =amplitude*[    frequency_x*cos(frequency_x*t);...    
-                         -frequency_y*sin(frequency_y*t);...
-                         - frequency_z*cos(frequency_z*t)];
+           omegad =[    amplitude_x*frequency_x*cos(frequency_x*t);...    
+                        amplitude_y*(-frequency_y*sin(frequency_y*t));...
+                         amplitude_z*(-frequency_z*cos(frequency_z*t))];
+
+       
+
+     
 
 
            desired_angular_velocity = platform.Euler_Matrix*omegad;
-%            % ad
+
            
 
-           omegad_dot =amplitude*[ -(frequency_x^2)*sin(frequency_x*t);...    
-                           -(frequency_y^2)*cos(frequency_y*t);...
-                         (frequency_z^2)*sin(frequency_z*t)];            
+           omegad_dot =[ -(frequency_x^2)*amplitude_x*sin(frequency_x*t);...    
+                           -(frequency_y^2)*amplitude_y*cos(frequency_y*t);...
+                         (frequency_z^2)*amplitude_z*sin(frequency_z*t)]; 
+
+          
+              
+
+              
 
            desired_angular_acceleration = platform.Euler_Matrix*omegad_dot;
            
