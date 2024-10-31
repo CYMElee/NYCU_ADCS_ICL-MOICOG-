@@ -1,8 +1,8 @@
 classdef controller
     properties
   
-         kR = 5*eye(3);
-         kW = 1*eye(3);
+         kR = 15*eye(3);
+         kW = 10*eye(3);
          
          M = [0;0;0];
          %% adaptive
@@ -45,7 +45,7 @@ classdef controller
                 
 
 
-                R_d = eul2rotm(desired(:,1),'XYZ');
+                R_d = eul2rotm(desired(:,1)',"XYZ");
 
                 W_d = desired(:,2);
                 W_d_dot = desired(:,3);

@@ -4,7 +4,7 @@ classdef platform_dynamic
     
     properties
         % simulation time
-        dt = 0.01;
+        dt = 0.001;
         sim_t = 5;     %total simulation duration
         t;              %ever time steps
         iter
@@ -32,13 +32,13 @@ classdef platform_dynamic
     methods
         function dX = dynamics(obj , X, F,T)
             dX = zeros(12, 1);  %delta of pos_x,pos_y,pos_z,vel_x,vel_y,vel_z,Rotation_matrix*9, w_x,w_y,w_z
-            R_now = reshape(X(7:15), 3, 3);
-            W_now = X(16:18);
+            R_now = reshape(X(1:9), 3, 3);
+            W_now = X(10:12);
     
             M = F(1:3);            
            
             dR = R_now*hat_map(W_now);
-            dW = obj.J\(-cross(W_now, obj.J*W_now) + M+T);
+            dW = obj.J\(-cross(W_now, obj.J*W_now) + M +T);
             
             dX(1:9) = reshape(dR, 9, 1);
             dX(10:12) = dW;

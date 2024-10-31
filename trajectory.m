@@ -1,8 +1,8 @@
 classdef trajectory
    methods
-       function desired = traj_generate(obj, t,type,platform)
+       function desired = traj_generate(obj, t,iteration,type,platform)
         
-       R_now = reshape(platform.R(:,t-1), 3, 3);
+       R_now = reshape(platform.R(:,iteration-1), 3, 3);
 
        R_now_euler = rotm2eul(R_now);
        Euler_Matrix = [1,0,-sin(R_now_euler(2));...

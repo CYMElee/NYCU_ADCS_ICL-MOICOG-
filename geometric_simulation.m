@@ -4,7 +4,7 @@ close all;
 addpath('geometry-toolbox')
 %% set drone parameters
 % simulation time
-dt = 1/400;
+dt = 1/1000;
 sim_t =40;
 
 platform1 = platform_dynamic;
@@ -14,9 +14,9 @@ platform1.t = 0:dt:sim_t;     %every time stamps
 
 
 platform1.m = 74.33;
-platform1.J = [7.13, 0, 0;...
-               0, 7.09, 0;...
-               0, 0, 7.13];
+platform1.J = [7.13, -0.05, -0.04;...
+               -0.05, 7.09, 0.03;...
+               -0.04, 0.03, 7.13];
 
 
 %use to trans motor torque to platform 
@@ -67,11 +67,11 @@ control_platform1.sigma_y_array = zeros(3,9,control_platform1.N);
 traj = trajectory;
 
 %% create allocation matrix
-       allocation_M = cal_allocation_matrix(platform1.d,platform1.c_tau);
-       inv_allocation_M = inv(allocation_M);
+    
+   
        
         
-       platform1.pc_2_mc = [0.01;0.01;-0.05]; % distance between center of rotation and center of mass
+       platform1.pc_2_mc = [0;0;0]; % distance between center of rotation and center of mass
 
 
    
@@ -89,7 +89,7 @@ control_output_platform1  = zeros(3,1);
 for i = 2:length(platform1.t)
     disp(i)
     t_now = platform1.t(i);
-    desired = traj.traj_generate(t_now,traj_type,platform1);
+    desired = traj.traj_generate(t_now,i,traj_type,platform1);
 
     % calculate control force
     [control_output_platform1, platform1.eR(:, i), platform1.eW(:, i),control_platform1] = control_platform1.geometric_tracking_ctrl(i,platform1,desired,controller_type);
@@ -114,12 +114,14 @@ for i = 2:length(platform1.t)
         reshape(reshape(platform1.R(:, i-1), 3, 3), 9, 1);...
         platform1.W(:, i-1)];
     
-    T_ext = cross(platform1.pc_2_mc,m*reshape(platform1.R(:, i-1), 3, 3)*[0;0;-9.81]);
+    T_ext = cross(platform1.pc_2_mc,platform1.m*reshape(platform1.R(:, i-1), 3, 3)*[0;0;-9.81]);
+    disp(T_ext);
+ 
 
     [T_platform1, X_new_platform1] = ode45(@(t, x) platform1.dynamics( x, real_control_torque_platform1,T_ext), [0, dt], X0_platform1);
     
    
-    dX_platform1 = platform1.dynamics(X0_platform1 , real_control_torque_platform1);
+    dX_platform1 = platform1.dynamics(X0_platform1 , real_control_torque_platform1,T_ext);
     
     
     % Save the states 
