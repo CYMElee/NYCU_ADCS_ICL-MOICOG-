@@ -28,7 +28,7 @@ classdef controller
         theta_hat_dot= [0;0;0;0;0;0;0;0;0];
         
         sigma_y_array;
-        sigma_y_omega_array;
+        
         sigma_M_hat_array;
          
         end
@@ -45,15 +45,14 @@ classdef controller
                 
 
 
-                R_d = desired(:,1);
+                R_d = eul2rotm(desired(:,1),'XYZ');
 
                 W_d = desired(:,2);
                 W_d_dot = desired(:,3);
 
 
-
                 W_hat = hat(W_now);  % hat map for omega
-                eR = 0.5*vee((R_c'*R_now-R_now'*R_c));     % error R
+                eR = 0.5*vee((R_d'*R_now-R_now'*R_d));     % error R
                 eW = W_now-R_now'*R_d*W_d;
                   
                 g_body = R_now*[0;0;-9.81];
@@ -85,7 +84,7 @@ classdef controller
                 elseif type == "ICL"
                    
 
-                    o_b = W_hat*R_now'*R_c*W_c - R_now'*R_c*W_c_dot; 
+                    o_b = W_hat*R_now'*R_d*W_d - R_now'*R_d*W_d_dot; 
 
                    Y1 = [   0   -platform.m*g_body(3)  platform.m*g_body(2);...
                     platform.m*g_body(3)   0               -platform.m*g_body(1);...
@@ -97,7 +96,7 @@ classdef controller
                            -W_now(1)*W_now(2) ,W_now(1)*W_now(2), -o_b(3) ,-W_now(2)^2 + W_now(1)^2  ,-o_b(1)-W_now(2)*W_now(3), -o_b(2)+W_now(1)*W_now(3)];
                     
 
-                   Y = [Y2,-Y1];
+                   Y = [Y2,Y1];
 
                    Y_omega = [ 0                   ,-W_now(2)*W_now(3) ,W_now(2)*W_now(3)             ,-W_now(1)*W_now(3)      ,W_now(1)*W_now(2)          , -W_now(3)^2 + W_now(2)^2 ;...
                                 W_now(1)*W_now(3)   , 0                 ,-W_now(1)*W_now(3)            , W_now(2)*W_now(3)      ,-W_now(1)^2 + W_now(3)^2   , -W_now(1)*W_now(2);...

@@ -44,10 +44,9 @@ platform1.eW = zeros(3, length(platform1.t));
 real_theta_array_platform1 = zeros(9, length(platform1.t));
 theta_array_platform1 = zeros(9, length(platform1.t));
 theta_hat_dot_array_platform1 = zeros(9, length(platform1.t));
-contorl_output_array_platform1 = zeros(4, length(platform1.t));
-dX_platform1 = zeros(18, 1);
+contorl_output_array_platform1 = zeros(3, length(platform1.t));
+dX_platform1 = zeros(12, 1);
 
-theta_array_platform2 = zeros(9, length(platform1.t)); %use adaptive
 
 
 %% initial state
@@ -60,12 +59,11 @@ control_platform1 = controller;
 
 
 control_platform1.sigma_M_hat_array = zeros(3,control_platform1.N);
-control_platform1.sigma_y_omega_array = zeros(3,control_platform1.N);
+
 control_platform1.sigma_y_array = zeros(3,9,control_platform1.N);
 
 
 %% create trajectory
-traj_array = zeros(12, length(platform1.t));
 traj = trajectory;
 
 %% create allocation matrix
@@ -73,7 +71,7 @@ traj = trajectory;
        inv_allocation_M = inv(allocation_M);
        
         
-       platform1.pc_2_mc = [0.01;0.01;0.05]; % distance between center of rotation and center of mass
+       platform1.pc_2_mc = [0.01;0.01;-0.05]; % distance between center of rotation and center of mass
 
 
    
@@ -81,7 +79,7 @@ traj = trajectory;
               
  %% start iteration
 
-traj_type = "circle";   %"circle","position"
+traj_type = "twist";   %"circle","position"
 controller_type = "ICL";   %"origin","EMK","adaptive","ICL"
 
 control_output_platform1  = zeros(3,1);
@@ -97,17 +95,15 @@ for i = 2:length(platform1.t)
     [control_output_platform1, platform1.eR(:, i), platform1.eW(:, i),control_platform1] = control_platform1.geometric_tracking_ctrl(i,platform1,desired,controller_type);
    
 
-    % calculate real force applied on the drone
-    real_theta_array_platform1(:,i) = [platform1.J(1,1),platform1.J(2,2),platform1.J(3,3),platform1.J(1,2),platform1.J(1,3),platform1.J(2,3),platform1.pc_2_mc(1),platform1.pc_2_mc(2)];
+    
+    real_theta_array_platform1(:,i) = [platform1.J(1,1),platform1.J(2,2),platform1.J(3,3),platform1.J(1,2),platform1.J(1,3),platform1.J(2,3),platform1.pc_2_mc(1),platform1.pc_2_mc(2),platform1.pc_2_mc(3)];
     theta_hat_dot_array_platform1(:,i) =control_platform1.theta_hat_dot;
     
     theta_array_platform1(:,i) = control_platform1.theta;
 
 
-    
- 
-    real_control_torque_platform1 = zeros(3,1);
-    real_control_torque_platform1 = control_output_platform1;
+  
+    real_control_torque_platform1 = [control_output_platform1(1);control_output_platform1(2);control_output_platform1(3)];
   
 
 
@@ -136,6 +132,7 @@ for i = 2:length(platform1.t)
 end
 
 %% show the result
+
 
 
 
@@ -183,94 +180,7 @@ xlabel(' $t[s]$','interpreter','latex','FontSize',24);
 ylabel(' $e_{\Omega_z}[rad/s]$','interpreter','latex','FontSize',24);
 axis([-inf inf -1 1])
 %% theta inertial
-show = "show error";%'show error' 'show value'
-if (show == "show value")
-figure('Name','inertia estimation result');
-subplot(6,1,1);
-plot(platform1.t(2:end), theta_array_platform1(1,2:end),"LineWidth",2,'Color',[0 0.5 1]);
-grid on;
-hold on;
-plot(platform1.t(2:end),real_theta_array_platform1(1,2:end),'--',"LineWidth",2,'Color',[1 0.3 0]);
-hold off;
-legend('$\hat{\theta}_{J,xx}$','$\theta_{J,xx}$','interpreter','latex','FontSize',24);
-ylabel(' $\hat{\theta}_{J,xx}[kgm^2]$','interpreter','latex','FontSize',16);
-title('$Estimation\ of\ the\ MoI$','interpreter','latex', 'FontSize', 24);
-axis([-inf inf real_theta_array_platform1(1,2)-0.05 real_theta_array_platform1(1,2)+0.05])
 
-subplot(6,1,2);
-plot(platform1.t(2:end), theta_array_platform1(2,2:end),"LineWidth",2,'Color',[0 0.5 1]);
-grid on;
-hold on;
-plot(platform1.t(2:end),real_theta_array_platform1(2,2:end),'--',"LineWidth",2,'Color',[1 0.3 0]);
-hold off;
-legend('$\hat{\theta}_{J,yy}$','$\theta_{J,yy}$','interpreter','latex','FontSize',24);
-ylabel(' $\hat{\theta}_{J,yy}[kgm^2]$','interpreter','latex','FontSize',16);
-axis([-inf inf real_theta_array_platform1(2,2)-0.05 real_theta_array_platform1(2,2)+0.05])
-
-subplot(6,1,3);
-plot(platform1.t(2:end), theta_array_platform1(3,2:end),"LineWidth",2,'Color',[0 0.5 1]);
-grid on;
-hold on;
-plot(platform1.t(2:end),real_theta_array_platform1(3,2:end),'--',"LineWidth",2,'Color',[1 0.3 0]);
-hold off;
-legend('$\hat{\theta}_{J,zz}$','$\theta_{J,zz}$','interpreter','latex','FontSize',24);
-ylabel(' $\hat{\theta}_{J,zz}[kgm^2]$','interpreter','latex','FontSize',16);
-axis([-inf inf real_theta_array_platform1(3,2)-0.05 real_theta_array_platform1(3,2)+0.05])
-
-subplot(6,1,4);
-plot(platform1.t(2:end), theta_array_platform1(4,2:end),"LineWidth",2,'Color',[0 0.5 1]);
-grid on;
-hold on;
-plot(platform1.t(2:end),real_theta_array_platform1(4,2:end),'--',"LineWidth",2,'Color',[1 0.3 0]);
-hold off;
-legend('$\hat{\theta}_{J,xy}$','$\theta_{J,xy}$','interpreter','latex','FontSize',24);
-ylabel(' $\hat{\theta}_{J,xy}[kgm^2]$','interpreter','latex','FontSize',16);
-axis([-inf inf real_theta_array_platform1(4,2)-0.01 real_theta_array_platform1(4,2)+0.01])
-
-subplot(6,1,5);
-plot(platform1.t(2:end), theta_array_platform1(5,2:end),"LineWidth",2,'Color',[0 0.5 1]);
-grid on;
-hold on;
-plot(platform1.t(2:end),real_theta_array_platform1(5,2:end),'--',"LineWidth",2,'Color',[1 0.3 0]);
-hold off;
-legend('$\hat{\theta}_{J,xz}$','$\theta_{J,xz}$','interpreter','latex','FontSize',24);
-ylabel(' $\hat{\theta}_{J,xz}[kgm^2]$','interpreter','latex','FontSize',16);
-axis([-inf inf real_theta_array_platform1(5,2)-0.01 real_theta_array_platform1(5,2)+0.01])
-
-subplot(6,1,6);
-plot(platform1.t(2:end), theta_array_platform1(6,2:end),"LineWidth",2,'Color',[0 0.5 1]);
-grid on;
-hold on;
-plot(platform1.t(2:end),real_theta_array_platform1(6,2:end),'--',"LineWidth",2,'Color',[1 0.3 0]);
-hold off;
-legend('$\hat{\theta}_{J,yz}$','$\theta_{J,yz}$','interpreter','latex','FontSize',24);
-ylabel(' $\hat{\theta}_{J,yz}[kgm^2]$','interpreter','latex','FontSize',16);
-xlabel(' $t[s]$','interpreter','latex','FontSize',24);
-axis([-inf inf real_theta_array_platform1(6,2)-0.01 real_theta_array_platform1(6,2)+0.01])
-
-%% theta CoG
-figure('Name','CoG estimation result');
-subplot(2,1,1);
-plot(platform1.t(2:end), theta_array_platform1(7,2:end),"LineWidth",2,'Color',[0 0.5 1]);
-grid on;
-hold on;
-plot(platform1.t(2:end),real_theta_array_platform1(7,2:end),'--',"LineWidth",2,'Color',[1 0.3 0]);
-hold off;
-legend('$\hat{\theta}_{r_{M/B_{x}}}$','$\theta_{r_{M/B_{x}}}$','interpreter','latex','FontSize',24);
-ylabel(' $\hat{\theta}_{r_{M/B_{x}}}[kgm^2]$','interpreter','latex','FontSize',24);
-title('$Estimation\ of\ the\ CoG$','interpreter','latex', 'FontSize', 24);
-
-subplot(2,1,2);
-plot(platform1.t(2:end), theta_array_platform1(8,2:end),"LineWidth",2,'Color',[0 0.5 1]);
-grid on;
-hold on;
-plot(platform1.t(2:end),real_theta_array_platform1(8,2:end),'--',"LineWidth",2,'Color',[1 0.3 0]);
-hold off;
-legend('$\hat{\theta}_{r_{M/B_{y}}}$','$\theta_{r_{M/B_{y}}}$','interpreter','latex','FontSize',24);
-ylabel(' $\hat{\theta}_{r_{M/B_{y}}}[kgm^2]$','interpreter','latex','FontSize',24);
-xlabel(' $t[s]$','interpreter','latex','FontSize',24);
-else
- %% theta inertial
 figure('Name','inertia estimation result');
 
 subplot(6,1,1);
@@ -314,19 +224,25 @@ axis([-inf inf -0.1 0.1])
 
 %% theta CoG
 figure('Name','CoG estimation result');
-subplot(2,1,1);
+subplot(3,1,1);
 plot(platform1.t(2:end), theta_array_platform1(7,2:end)-real_theta_array_platform1(7,2:end),"LineWidth",2,'Color',[0 0.5 1]);
 grid on;
 ylabel(' $\tilde{\theta}_{r_{M/B_{x}}}[kgm^2]$','interpreter','latex','FontSize',24);
 title('$Estimation\ Errors\ of\ the\ CoG$','interpreter','latex', 'FontSize', 24);
 axis([-inf inf -0.1 0.1])
 
-subplot(2,1,2);
+subplot(3,1,2);
 plot(platform1.t(2:end), theta_array_platform1(8,2:end)-real_theta_array_platform1(8,2:end),"LineWidth",2,'Color',[0 0.5 1]);
 grid on;
 ylabel(' $\tilde{\theta}_{r_{M/B_{y}}}[kgm^2]$','interpreter','latex','FontSize',24);
+
+
+subplot(3,1,3);
+plot(platform1.t(2:end), theta_array_platform1(9,2:end)-real_theta_array_platform1(9,2:end),"LineWidth",2,'Color',[0 0.5 1]);
+grid on;
+ylabel(' $\tilde{\theta}_{r_{M/B_{z}}}[kgm^2]$','interpreter','latex','FontSize',24);
 xlabel(' $t[s]$','interpreter','latex','FontSize',24);
 axis([-inf inf -0.1 0.1])
-end
+
 
 
