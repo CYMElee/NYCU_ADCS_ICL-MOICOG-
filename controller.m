@@ -1,29 +1,30 @@
 classdef controller
     properties
   
-         kR = 15*eye(3);
-         kW = 10*eye(3);
+         kR = 40*eye(3);
+         kW = 35*eye(3);
          
          M = [0;0;0];
+         M_real = [0;0;0];
          %% adaptive
 
          theta = [0;0;0;0;0;0;0;0;0];
 
-         gamma =  diag([0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005]);
+         gamma =  diag([0.00000001,0.00000001,0.00000001,0.00000001,0.00000001,0.00000001,0.00000001,0.00000001,0.00000001]);
 
-         c2 = 0.5;
+         c2 = 6.5;
         %% ICL
-        Y_icl_last = zeros(3,9,5);
-        M_icl_last = zeros(3,5);
+        Y_icl_last = zeros(3,9,10);
+        M_icl_last = zeros(3,10);
        
         last_W = [0;0;0];
 
         
         last_R = [1 0 0;0 1 0;0 0 1]
 
-        k_icl =  diag([50000000,50000000,500000000,50000000,50000000,50000000,500000,500000,500000]);
+        k_icl =  diag([50000000000,50000000000,500000000000,50000000000,50000000000,50000000000,50000,50000,50000]);
 
-        N = 20;      
+        N = 100;      
         
         theta_hat_dot= [0;0;0;0;0;0;0;0;0];
         
@@ -110,7 +111,7 @@ classdef controller
                                        0        , 0       ,    W_dot(3) ,0        ,W_dot(1),W_dot(2)];
                                    
 
-                    M_bar = obj.M*platform.dt;
+                    M_bar = obj.M_real*platform.dt;
 
 
                     y_W = Y_omega*platform.dt + W_dot_matrix;
@@ -119,7 +120,7 @@ classdef controller
                     y_cl = [y_W,Y_CoG_icl*platform.dt];
 
 
-                    integral_num = 5;
+                    integral_num = 10;
                     for i= 1:integral_num-1
                         obj.Y_icl_last(:,:,i+1) = obj.Y_icl_last(:,:,i);
                         obj.M_icl_last(:,i+1) = obj.M_icl_last(:,i);

@@ -5,7 +5,7 @@ addpath('geometry-toolbox')
 %% set drone parameters
 % simulation time
 dt = 1/1000;
-sim_t =30;
+sim_t =60;
 
 platform1 = platform_dynamic;
 platform1.dt = dt;            %delta t
@@ -81,9 +81,9 @@ traj = trajectory;
 %% create allocation matrix
     
    
-       
+rw = "close";       
         
- platform1.pc_2_mc = [0.005;-0.005;-0.005]; % distance between center of rotation and center of mass
+platform1.pc_2_mc = [0.005;-0.005;-0.005]; % distance between center of rotation and center of mass
 
 control_platform1.theta = 0.5*[platform1.J(1,1);platform1.J(2,2);platform1.J(3,3);platform1.J(1,2);platform1.J(1,3);platform1.J(2,3);platform1.pc_2_mc(1);platform1.pc_2_mc(2);platform1.pc_2_mc(3)];
    
@@ -116,8 +116,8 @@ for i = 2:length(platform1.t)
 
 
 
-
-
+    
+    if rw == "OPEN"
 
 
     platform1.M_p = [control_output_platform1(1);control_output_platform1(2);control_output_platform1(3);0] ;
@@ -127,10 +127,17 @@ for i = 2:length(platform1.t)
     X0_platform1_RW =platform1.Omega(:,i-1);
 
     platform1.Omega(:,i) = X0_platform1_RW + platform1.Omega_dot*platform1.dt;
-
     real_control_torque_platform1 = -(platform1.allocation_matrix_AW*platform1.J_RW*platform1.Omega_dot+cross(platform1.W(:, i-1),platform1.allocation_matrix_AW*platform1.J_RW*platform1.Omega(:,i)));
-
+    
+    % store the real control input using for ICL
+    control_platform1.M_real = real_control_torque_platform1;
         
+    else
+    real_control_torque_platform1 = control_output_platform1;
+    control_platform1.M_real = control_output_platform1;
+    end
+
+
     %% update states
     X0_platform1 = [...
         reshape(reshape(platform1.R(:, i-1), 3, 3), 9, 1);...
@@ -139,12 +146,12 @@ for i = 2:length(platform1.t)
    
     % get the Euler Metrix
 
-
+    
 
     T_ext=cross(platform1.pc_2_mc,platform1.m*platform1.Euler_Matrix*[0;0;-9.81]);
     disp(T_ext);
     disp("control input");
-    disp(real_control_torque_platform1);
+   % disp(real_control_torque_platform1);
 
 
     [T_platform1, X_new_platform1] = ode45(@(t, x) platform1.dynamics( x, real_control_torque_platform1,T_ext), [0, dt], X0_platform1);

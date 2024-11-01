@@ -3,12 +3,12 @@ classdef trajectory
        function desired = traj_generate(obj, t,iteration,type,platform)
         
 
-      frequency_x = 0.8;
-      frequency_y = 0.8;
+      frequency_x = 0.3;
+      frequency_y = 0.3;
       frequency_z = 0.5;
-      amplitude_x = 0;
-      amplitude_y = 0;
-      amplitude_z = 0.6;
+      amplitude_x = 0.6;
+      amplitude_y = 0.6;
+      amplitude_z = 1;
 
         if type == "twist"
 %            % xd, vd, b1d
