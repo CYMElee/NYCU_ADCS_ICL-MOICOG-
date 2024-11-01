@@ -21,12 +21,19 @@ classdef platform_dynamic
         R
         W
         W_dot
-        
+        dR
+        R_Euler
         % errors
         eR
         eW
         % control input
         Euler_Matrix = zeros(3,3);
+        % Reaction wheels
+        Omega 
+        Omega_dot
+        J_RW 
+        M_p
+        
 
     end
     
@@ -38,10 +45,10 @@ classdef platform_dynamic
     
             M = F(1:3);            
            
-            dR = R_now*hat_map(W_now);
+            d_R = R_now*hat_map(W_now);
             dW = obj.J\(-cross(W_now, obj.J*W_now) + M +T);
             
-            dX(1:9) = reshape(dR, 9, 1);
+            dX(1:9) = reshape(d_R, 9, 1);
             dX(10:12) = dW;
         end
 
@@ -51,8 +58,10 @@ classdef platform_dynamic
             Euler_Matrix = [1,0,-sin(R_now_euler(2));...
                     0,cos(R_now_euler(1)),sin(R_now_euler(1))*cos(R_now_euler(2));...
                     0,-sin(R_now_euler(1)),cos(R_now_euler(1))*cos(R_now_euler(2))];
-        
+         
         end
+
+            
 
     end
 end

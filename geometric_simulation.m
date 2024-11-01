@@ -5,7 +5,7 @@ addpath('geometry-toolbox')
 %% set drone parameters
 % simulation time
 dt = 1/1000;
-sim_t =120;
+sim_t =30;
 
 platform1 = platform_dynamic;
 platform1.dt = dt;            %delta t
@@ -17,6 +17,8 @@ platform1.m = 74.33;
 platform1.J = [7.13, 0, 0;...
                0, 7.09, 0;...
                0, 0, 7.13];
+
+platform1.J_RW=2.9788*10^-3; % units:kg*m^2
 
 
 %use to trans motor torque to platform 
@@ -49,8 +51,13 @@ dX_platform1 = zeros(12, 1);
 
 
 %% create attitude array use to plot
+platform1.dR = zeros(3, length(platform1.t));
+platform1.R_Euler = zeros(3, length(platform1.t));
 
 
+%% create R.W array use ODE45 and plot
+
+platform1.Omega = zeros(4,length(platform1.t));
 
 
 
@@ -78,7 +85,7 @@ traj = trajectory;
         
  platform1.pc_2_mc = [0.005;-0.005;-0.005]; % distance between center of rotation and center of mass
 
-
+control_platform1.theta = 0.5*[platform1.J(1,1);platform1.J(2,2);platform1.J(3,3);platform1.J(1,2);platform1.J(1,3);platform1.J(2,3);platform1.pc_2_mc(1);platform1.pc_2_mc(2);platform1.pc_2_mc(3)];
    
 
               
@@ -108,12 +115,20 @@ for i = 2:length(platform1.t)
     theta_array_platform1(:,i) = control_platform1.theta;
 
 
-  
-    real_control_torque_platform1 = [control_output_platform1(1);control_output_platform1(2);control_output_platform1(3)];
-
-  
 
 
+
+
+
+    platform1.M_p = [control_output_platform1(1);control_output_platform1(2);control_output_platform1(3);0] ;
+    platform1.Omega_dot = -(platform1.allocation_matrix_HW_inv/platform1.J_RW)*platform1.M_p;
+    
+    % get the R.W control torque
+    X0_platform1_RW =platform1.Omega(:,i-1);
+
+    platform1.Omega(:,i) = X0_platform1_RW + platform1.Omega_dot*platform1.dt;
+
+    real_control_torque_platform1 = -(platform1.allocation_matrix_AW*platform1.J_RW*platform1.Omega_dot+cross(platform1.W(:, i-1),platform1.allocation_matrix_AW*platform1.J_RW*platform1.Omega(:,i)));
 
         
     %% update states
@@ -143,6 +158,10 @@ for i = 2:length(platform1.t)
     platform1.W(:, i) = X_new_platform1(end, 10:12);
     platform1.W_dot(:, i) = dX_platform1(10:12)';
 
+    % Save date use to plot
+    platform1.dR(:,i) = desired(:,1);
+    platform1.R_Euler(:,i) = rotm2eul(reshape(platform1.R(:,i),3,3),"XYZ");
+
     
 end
 
@@ -152,28 +171,81 @@ end
 
 
 %% rotation
+
 %% Attitude
+
+font =24
 figure('Name','rotation result');
 
-subplot(3,1,1);
+
+subplot(3,2,1);
+
+plot(platform1.t(2:end),platform1.R_Euler(1,2:end),"LineWidth",2);
+grid on;
+hold on;
+plot(platform1.t(2:end),platform1.dR(1,2:end),'--',"LineWidth",2);
+title('$Attitude\ in\ Roll(x)\ Direction$','interpreter','latex', 'FontSize', font);
+ylabel(' $Roll[rad]$','interpreter','latex','FontSize',font);
+axis([-inf inf -2 2])
+legend('$Roll$','$Roll_d$','interpreter','latex','FontSize',font);
+subplot(3,2,2);
 plot(platform1.t(2:end),platform1.eR(1,2:end),"LineWidth",2);
 grid on;
-ylabel(' $e_{R_x}[rad]$','interpreter','latex','FontSize',24);
-title('$Attitude\ Errors$','interpreter','latex', 'FontSize', 24);
-axis([-inf inf -1 1])
-subplot(3,1,2);
+title('$Attitude\ Error\ in\ Roll(x)\ Direction$','interpreter','latex', 'FontSize', font);
+ylabel(' $e_{R_x}[rad]$','interpreter','latex','FontSize',font);
+axis([-inf inf -0.5 0.5])
 
+subplot(3,2,3);
+plot(platform1.t(2:end),platform1.R_Euler(2,2:end),"LineWidth",2);
+grid on;
+hold on;
+plot(platform1.t(2:end),platform1.dR(2,2:end),'--',"LineWidth",2);
+title('$Attitude\ in\ Pitch(y)\ Direction$','interpreter','latex', 'FontSize', font);
+ylabel(' $Pitch[rad]$','interpreter','latex','FontSize',font);
+axis([-inf inf -2 2])
+legend('$Pitch$','$Pitch_d$','interpreter','latex','FontSize',font);
+
+subplot(3,2,4);
 plot(platform1.t(2:end),platform1.eR(2,2:end),"LineWidth",2);
 grid on;
-ylabel(' $e_{R_y}[rad]$','interpreter','latex','FontSize',24);
-axis([-inf inf -1 1])
-subplot(3,1,3);
+title('$Attitude\ Error\ in\ Pitch(y)\ Direction$','interpreter','latex', 'FontSize', font);
+ylabel(' $e_{R_y}[rad]$','interpreter','latex','FontSize',font);
+axis([-inf inf -0.5 0.5])
 
+
+
+subplot(3,2,5);
+plot(platform1.t(2:end),platform1.R_Euler(3,2:end),"LineWidth",2);
+grid on;
+hold on;
+plot(platform1.t(2:end),platform1.dR(3,2:end),'--',"LineWidth",2);
+title('$Attitude\ in\ yaw(z)\ Direction$','interpreter','latex', 'FontSize', font);
+ylabel(' $Yaw[rad]$','interpreter','latex','FontSize',font);
+axis([-inf inf -2 2])
+legend('$Yaw$','$Yaw_d$','interpreter','latex','FontSize',font);
+
+subplot(3,2,6);
 plot(platform1.t(2:end),platform1.eR(3,2:end),"LineWidth",2);
 grid on;
-xlabel(' $t[s]$','interpreter','latex','FontSize',24);
-ylabel(' $e_{R_z}[rad]$','interpreter','latex','FontSize',24);
-axis([-inf inf -1 1])
+title('$Attitude\ Error\ in\ Yaw(z)\ Direction$','interpreter','latex', 'FontSize', font);
+ylabel(' $e_{R_z}[rad]$','interpreter','latex','FontSize',font);
+axis([-inf inf -0.5 0.5])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 %% angular velocity
 figure('Name','rotation result');
 
@@ -203,20 +275,20 @@ plot(platform1.t(2:end), theta_array_platform1(1,2:end),"LineWidth",2,'Color',[0
 grid on;
 ylabel(' $\tilde{\theta}_{J,xx}[kgm^2]$','interpreter','latex','FontSize',16);
 title('$Estimation\ Errors\ of\ the\ MoI$','interpreter','latex', 'FontSize', 24);
-axis([-inf inf -0.1 0.1])
+axis([-inf inf 4 8])
 
 
 subplot(6,1,2);
 plot(platform1.t(2:end), theta_array_platform1(2,2:end),"LineWidth",2,'Color',[0 0.5 1]);
 grid on;
 ylabel(' $\tilde{\theta}_{J,yy}[kgm^2]$','interpreter','latex','FontSize',16);
-axis([-inf inf -0.1 0.1])
+axis([-inf inf 4 8])
 
 subplot(6,1,3);
 plot(platform1.t(2:end), theta_array_platform1(3,2:end),"LineWidth",2,'Color',[0 0.5 1]);
 grid on;
 ylabel(' $\tilde{\theta}_{J,zz}[kgm^2]$','interpreter','latex','FontSize',16);
-axis([-inf inf -0.1 0.1])
+axis([-inf inf 4 8])
 
 subplot(6,1,4);
 plot(platform1.t(2:end), theta_array_platform1(4,2:end),"LineWidth",2,'Color',[0 0.5 1]);

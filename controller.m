@@ -1,17 +1,17 @@
 classdef controller
     properties
   
-         kR = 20*eye(3);
-         kW = 15*eye(3);
+         kR = 15*eye(3);
+         kW = 10*eye(3);
          
          M = [0;0;0];
          %% adaptive
 
          theta = [0;0;0;0;0;0;0;0;0];
 
-         gamma =  diag([0.0000005,0.0000005,0.0000005,0.0000005,0.0000005,0.0000005,0.0000005,0.0000005,0.0000005]);
+         gamma =  diag([0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005]);
 
-         c2 = 1.5
+         c2 = 0.5;
         %% ICL
         Y_icl_last = zeros(3,9,5);
         M_icl_last = zeros(3,5);
@@ -21,7 +21,7 @@ classdef controller
         
         last_R = [1 0 0;0 1 0;0 0 1]
 
-        k_icl =  diag([5000000000,5000000000,5000000000,5000000000,5000000000,5000000000,5000000,5000000,5000000]);
+        k_icl =  diag([50000000,50000000,500000000,50000000,50000000,50000000,500000,500000,500000]);
 
         N = 20;      
         
@@ -60,7 +60,9 @@ classdef controller
                     
                     
                     
-                    Y1 = hat(platform.m*g_body);
+                    Y1 = [   0   -platform.m*g_body(3)  platform.m*g_body(2);...
+                    platform.m*g_body(3)   0               -platform.m*g_body(1);...
+                    -platform.m*g_body(2)   platform.m*g_body(1)   0];
                 
                 
                 
