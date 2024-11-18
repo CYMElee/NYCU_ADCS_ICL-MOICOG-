@@ -30,6 +30,8 @@ classdef platform_dynamic
         % control input
         Euler_Matrix = zeros(3,3);
         y_sys_icl_singular_value 
+        y_sys_icl_left_singular_value   %U
+        y_sys_icl_right_singular_value  %V
 
         % R.W.
 

@@ -1,16 +1,16 @@
 classdef controller
     properties
   
-         kR = diag([10,10,10]);
-         kW = diag([8,8,8]);
-         
+         kR = diag([90,90,50]);
+         kW = diag([1,1,1]);
+        
          M = [0;0;0];
          M_RW =[0;0;0];
          %% adaptive
 
          theta = [0;0;0;0;0;0;0;0;0];
 
-         gamma =  diag([0.0000001,0.0000001,0.0000001,0.0000001,0.0000001,0.0000001,0.0000001,0.0000001,0.0000001]);
+         gamma =  diag([0.00000001,0.00000001,0.00000001,0.00000001,0.00000001,0.00000001,0.000001,0.000001,0.000001]);
 
          c2 = 6.5
         %% ICL
@@ -22,7 +22,7 @@ classdef controller
         
         last_R = [1 0 0;0 1 0;0 0 1]
 
-        k_icl =  diag([5000000000,5000000000,5000000000,5000000000,5000000000,5000000000,50000,50000,50000]);
+        k_icl =  diag([500000000,500000000,500000000,500000000,500000000,500000000,5000,5000,5000]);
 
         N = 90;      
         
@@ -33,12 +33,14 @@ classdef controller
         sigma_M_hat_array;
         y_icl_temp = zeros(3,9);
         singular_value_y_sys_icl = zeros(3,9);
+        left_singular_value_y_sys_icl = zeros(3,3);
+        right_singular_value_y_sys_icl = zeros(9,9);
          
         end
    methods
 
        
-       function [control,eR,eW,obj, singular_value_y_sys_icl] = geometric_tracking_ctrl(obj,iteration,platform,desired,type)
+       function [control,eR,eW,obj, singular_value_y_sys_icl,left_singular_value_y_sys_icl,right_singular_value_y_sys_icl] = geometric_tracking_ctrl(obj,iteration,platform,desired,type)
 
                 control = zeros(3,1);
 
@@ -124,16 +126,19 @@ classdef controller
                                        0        , 0       ,    W_dot(3) ,0        ,W_dot(1),W_dot(2)];
                                    
 
-                    M_bar = obj.M*platform.dt;
+                   M_bar = obj.M*platform.dt;
 
 
-                    y_W = Y_omega*platform.dt + W_dot_matrix;
+                   y_W = Y_omega*platform.dt + W_dot_matrix;
 
 
-                    y_cl = [y_W,Y_CoG_icl*platform.dt];
+                   
+                    
+                   % y_cl = [Y_CoG_icl*platform.dt,y_W];
+                   y_cl = [y_W,Y_CoG_icl*platform.dt];
                     
 
-                integral_num = 50;
+                integral_num = 90;
                 for i = integral_num-1:-1:1
                     obj.Y_icl_last(:,:,i+1) = obj.Y_icl_last(:,:,i);
                     obj.M_icl_last(:,i+1) = obj.M_icl_last(:,i);
@@ -167,6 +172,8 @@ classdef controller
                          obj.theta_hat_dot = -obj.gamma*Y'*(eW+obj.c2*eR) + obj.gamma*obj.k_icl * x;
                          [U,S,V] = svd(obj.y_icl_temp);
                          singular_value_y_sys_icl = S;
+                         left_singular_value_y_sys_icl = U;
+                         right_singular_value_y_sys_icl = V;
                          obj.y_icl_temp = zeros(3,9);
                     else
                         for i= 1:obj.N-1
@@ -177,6 +184,8 @@ classdef controller
                         %if the step not reach N set the singular vector as
                         %0
                         singular_value_y_sys_icl = zeros(3,9);
+                        left_singular_value_y_sys_icl = zeros(3,3);
+                        right_singular_value_y_sys_icl = zeros(9,9);
 
                         obj.sigma_M_hat_array(:,obj.N) = M_bar;
                         obj.sigma_y_array(:,:,obj.N) = y_cl;
@@ -230,7 +239,7 @@ classdef controller
                     y_cl = [y_W,Y_CoG_icl*platform.dt];
                     
 
-                integral_num = 90;
+                integral_num = 30;
                 for i = integral_num-1:-1:1
                     obj.Y_icl_last(:,:,i+1) = obj.Y_icl_last(:,:,i);
                     obj.M_icl_last(:,i+1) = obj.M_icl_last(:,i);
@@ -264,6 +273,9 @@ classdef controller
                          obj.theta_hat_dot = -obj.gamma*Y'*(eW+obj.c2*eR) + obj.gamma*obj.k_icl * x;
                          [U,S,V] = svd(obj.y_icl_temp);
                          singular_value_y_sys_icl = S;
+                         left_singular_value_y_sys_icl = U;
+                         right_singular_value_y_sys_icl = V;
+                     
                          obj.y_icl_temp = zeros(3,9);
                     else
                         for i= 1:obj.N-1
@@ -274,6 +286,8 @@ classdef controller
                         %if the step not reach N set the singular vector as
                         %0
                         singular_value_y_sys_icl = zeros(3,9);
+                        left_singular_value_y_sys_icl = zeros(3,3);
+                        right_singular_value_y_sys_icl = zeros(9,9);
 
                         obj.sigma_M_hat_array(:,obj.N) = M_bar;
                         obj.sigma_y_array(:,:,obj.N) = y_cl;
@@ -307,7 +321,7 @@ classdef controller
                 end
              
                 control(1:3) = obj.M;
-
+                
               end
    end
 end

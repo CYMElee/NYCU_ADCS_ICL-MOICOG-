@@ -3,9 +3,9 @@ classdef trajectory
        function desired = traj_generate(obj, t,iteration,type,platform)
         
 
-      frequency_x = 0.3;
-      frequency_y = 0.3;
-      frequency_z = 0.08;
+      frequency_x = 0.7;
+      frequency_y = 0.7;
+      frequency_z = 0.5;
       amplitude_x = 0.5;
       amplitude_y = 0.5;
       amplitude_z = 2;
