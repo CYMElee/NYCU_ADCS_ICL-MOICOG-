@@ -1,7 +1,7 @@
 classdef controller
     properties
   
-         kR = diag([90,90,50]);
+         kR = diag([10,10,10]);
          kW = diag([1,1,1]);
         
          M = [0;0;0];
@@ -35,12 +35,17 @@ classdef controller
         singular_value_y_sys_icl = zeros(3,9);
         left_singular_value_y_sys_icl = zeros(3,3);
         right_singular_value_y_sys_icl = zeros(9,9);
-         
+        icl_term_temp = zeros(3,1);
+
+        % K is use to kill the adaptive term when the system reach the
+        % stable
+        k = 1;
+        
         end
    methods
 
        
-       function [control,eR,eW,obj, singular_value_y_sys_icl,left_singular_value_y_sys_icl,right_singular_value_y_sys_icl] = geometric_tracking_ctrl(obj,iteration,platform,desired,type)
+       function [control,eR,eW,obj, singular_value_y_sys_icl,left_singular_value_y_sys_icl,right_singular_value_y_sys_icl,icl_term_return] = geometric_tracking_ctrl(obj,iteration,platform,desired,type)
 
                 control = zeros(3,1);
 
@@ -168,9 +173,33 @@ classdef controller
                         for i=2:obj.N
                                 x = x + obj.sigma_y_array(:,:,i)'*(obj.sigma_M_hat_array(:,i) - obj.sigma_y_array(:,:,i)*obj.theta );
                                 obj.y_icl_temp = obj.y_icl_temp+obj.sigma_y_array(:,:,i);
+                                obj.icl_term_temp = obj.icl_term_temp+(obj.sigma_M_hat_array(:,i) - obj.sigma_y_array(:,:,i)*obj.theta );
+
                         end
-                         obj.theta_hat_dot = -obj.gamma*Y'*(eW+obj.c2*eR) + obj.gamma*obj.k_icl * x;
+                        
+                        
+
+                        % return the (m-y_sys^{icl})*theta
+                        icl_term_return = obj.icl_term_temp;
+                      %  if(iteration==180001)
+                           %icl_term_return =  M_bar-y_cl *obj.theta;
+                       % end
+
+                        % after return icl_term_return,set the
+                        % "obj.icl_term_temp" to 0
+                        obj.icl_term_temp = zeros(3,1);
+
+                      if(iteration<40000)
+                          obj.k = 1;
+                      else
+                          obj.k = 0;
+                      end
+            
+                         obj.theta_hat_dot = -obj.gamma*Y'*obj.k*(eW+obj.c2*eR) + obj.gamma*obj.k_icl * x;
+                        % Do S.V.D on y_sys^{icl}
+
                          [U,S,V] = svd(obj.y_icl_temp);
+
                          singular_value_y_sys_icl = S;
                          left_singular_value_y_sys_icl = U;
                          right_singular_value_y_sys_icl = V;
@@ -186,6 +215,7 @@ classdef controller
                         singular_value_y_sys_icl = zeros(3,9);
                         left_singular_value_y_sys_icl = zeros(3,3);
                         right_singular_value_y_sys_icl = zeros(9,9);
+                        icl_term_return = zeros(3,1);
 
                         obj.sigma_M_hat_array(:,obj.N) = M_bar;
                         obj.sigma_y_array(:,:,obj.N) = y_cl;

@@ -33,6 +33,9 @@ classdef platform_dynamic
         y_sys_icl_left_singular_value   %U
         y_sys_icl_right_singular_value  %V
 
+
+        icl_term 
+
         % R.W.
 
         Omega_dot
