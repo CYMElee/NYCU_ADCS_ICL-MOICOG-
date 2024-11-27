@@ -42,6 +42,16 @@ classdef platform_dynamic
         Omega
         J_RW = 2.824e-3;
 
+        %Platform dynamic constraint
+        Attitude_upper_limit
+        Attitude_lower_limit
+        omega_upper_limit
+        omega_lower_limit
+        omega_dot_upper_limit
+        omega_dot_lower_limit
+
+
+
 
     end
     

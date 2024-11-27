@@ -63,7 +63,86 @@ xlabel(' $t[s]$','interpreter','latex','FontSize',font);
 ylabel(' $e_{R_z}[rad]$','interpreter','latex','FontSize',font);
 title('$Attitude\ Error\ in\ Yaw\ Direction$','interpreter','latex', 'FontSize',font);
 axis([-inf inf -1 1])
+
+%% Attitude 
+figure('Name','Platform attitude');
+subplot(3,1,1);
+plot(platform1.t(2:end),platform1.R_Euler(1,2:end),"LineWidth",2);
+grid on;
+hold on;
+plot(platform1.t(2:end),platform1.Attitude_upper_limit(1,2:end),'r--',"LineWidth",2);
+plot(platform1.t(2:end),platform1.Attitude_lower_limit(1,2:end),'r--',"LineWidth",2);
+ylabel(' $Roll[rad]$','interpreter','latex','FontSize',24);
+title('$Platfrom\ attitude$','interpreter','latex', 'FontSize', 24);
+legend('$Roll$','$upper$','$lower$','interpreter','latex','FontSize',font);
+axis([-inf inf -0.78 0.78])
+subplot(3,1,2);
+plot(platform1.t(2:end),platform1.R_Euler(2,2:end),"LineWidth",2);
+grid on;
+hold on;
+plot(platform1.t(2:end),platform1.Attitude_upper_limit(2,2:end),'r--',"LineWidth",2);
+plot(platform1.t(2:end),platform1.Attitude_lower_limit(2,2:end),'r--',"LineWidth",2);
+ylabel(' $Pitch[rad]$','interpreter','latex','FontSize',24);
+legend('$Pitch$','$upper$','$lower$','interpreter','latex','FontSize',font);
+axis([-inf inf -0.78 0.78])
+subplot(3,1,3);
+plot(platform1.t(2:end),platform1.R_Euler(3,2:end),"LineWidth",2);
+grid on;
+hold on;
+plot(platform1.t(2:end),platform1.Attitude_upper_limit(3,2:end),'r--',"LineWidth",2);
+plot(platform1.t(2:end),platform1.Attitude_lower_limit(3,2:end),'r--',"LineWidth",2);
+xlabel(' $t[s]$','interpreter','latex','FontSize',24);
+ylabel(' $Yaw[rad]$','interpreter','latex','FontSize',24);
+legend('$Yaw$','$upper$','$lower$','interpreter','latex','FontSize',font);
+axis([-inf inf -3.17 3.17])
+
+
+
+
+
+
+
+
+
 %% angular velocity
+figure('Name','Angular_velocity');
+subplot(3,1,1);
+plot(platform1.t(2:end),platform1.W(1,2:end),"LineWidth",2);
+grid on;
+hold on;
+plot(platform1.t(2:end),platform1.omega_upper_limit(1,2:end),'r--',"LineWidth",2);
+plot(platform1.t(2:end),platform1.omega_lower_limit(1,2:end),'r--',"LineWidth",2);
+ylabel(' $\omega_{x}[rad/s]$','interpreter','latex','FontSize',24);
+title('$Angular\ velocity$','interpreter','latex', 'FontSize', 24);
+legend('$\omega_{x}$','$upper$','$lower$','interpreter','latex','FontSize',font);
+axis([-inf inf -0.05 0.05])
+subplot(3,1,2);
+plot(platform1.t(2:end),platform1.W(2,2:end),"LineWidth",2);
+grid on;
+hold on;
+plot(platform1.t(2:end),platform1.omega_upper_limit(2,2:end),'r--',"LineWidth",2);
+plot(platform1.t(2:end),platform1.omega_lower_limit(2,2:end),'r--',"LineWidth",2);
+ylabel(' $\omega_{y}[rad/s]$','interpreter','latex','FontSize',24);
+legend('$\omega_{y}$','$upper$','$lower$','interpreter','latex','FontSize',font);
+axis([-inf inf -0.05 0.05])
+subplot(3,1,3);
+plot(platform1.t(2:end),platform1.W(3,2:end),"LineWidth",2);
+grid on;
+hold on;
+plot(platform1.t(2:end),platform1.omega_upper_limit(3,2:end),'r--',"LineWidth",2);
+plot(platform1.t(2:end),platform1.omega_lower_limit(3,2:end),'r--',"LineWidth",2);
+xlabel(' $t[s]$','interpreter','latex','FontSize',24);
+ylabel(' $\omega_{z}[rad/s]$','interpreter','latex','FontSize',24);
+legend('$\omega_{z}$','$upper$','$lower$','interpreter','latex','FontSize',font);
+axis([-inf inf -0.05 0.05])
+
+
+
+
+
+
+
+%% angular velocity tracking error
 figure('Name','rotation result');
 
 subplot(3,1,1);
@@ -83,6 +162,41 @@ grid on;
 xlabel(' $t[s]$','interpreter','latex','FontSize',24);
 ylabel(' $e_{\Omega_z}[rad/s]$','interpreter','latex','FontSize',24);
 axis([-inf inf -1 1])
+
+%% angular acceleration
+figure('Name','Angular_acceleration');
+subplot(3,1,1);
+plot(platform1.t(2:end),platform1.W_dot(1,2:end),"LineWidth",2);
+grid on;
+hold on;
+plot(platform1.t(2:end),platform1.omega_dot_upper_limit(1,2:end),'r--',"LineWidth",2);
+plot(platform1.t(2:end),platform1.omega_dot_lower_limit(1,2:end),'r--',"LineWidth",2);
+ylabel(' $\dot{\omega}_{x}[rad/s^{2}]$','interpreter','latex','FontSize',24);
+title('$Angular\ accelerate$','interpreter','latex', 'FontSize', 24);
+legend('$\dot{\omega}_{x}$','$upper$','$lower$','interpreter','latex','FontSize',font);
+axis([-inf inf -0.05 0.05])
+subplot(3,1,2);
+plot(platform1.t(2:end),platform1.W_dot(2,2:end),"LineWidth",2);
+grid on;
+hold on;
+plot(platform1.t(2:end),platform1.omega_dot_upper_limit(2,2:end),'r--',"LineWidth",2);
+plot(platform1.t(2:end),platform1.omega_dot_lower_limit(2,2:end),'r--',"LineWidth",2);
+ylabel(' $\dot{\omega}_{y}[rad/s^{2}]$','interpreter','latex','FontSize',24);
+legend('$\dot{\omega}_{y}$','$upper$','$lower$','interpreter','latex','FontSize',font);
+axis([-inf inf -0.05 0.05])
+subplot(3,1,3);
+plot(platform1.t(2:end),platform1.W_dot(3,2:end),"LineWidth",2);
+grid on;
+hold on;
+plot(platform1.t(2:end),platform1.omega_dot_upper_limit(3,2:end),'r--',"LineWidth",2);
+plot(platform1.t(2:end),platform1.omega_dot_lower_limit(3,2:end),'r--',"LineWidth",2);
+xlabel(' $t[s]$','interpreter','latex','FontSize',24);
+ylabel(' $\dot{\omega}_{z}[rad/s^{2}]$','interpreter','latex','FontSize',24);
+legend('$\dot{\omega}_{z}$','$upper$','$lower$','interpreter','latex','FontSize',font);
+axis([-inf inf -0.05 0.05])
+
+
+
 %% theta inertial
 
 %MoI 

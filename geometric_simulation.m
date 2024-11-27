@@ -48,6 +48,17 @@ contorl_output_array_platform1 = zeros(3, length(platform1.t));
 dX_platform1 = zeros(12, 1);
 
 
+%% create constraint array
+platform1.Attitude_upper_limit = zeros(3,length(platform1.t));
+platform1.Attitude_lower_limit =  zeros(3,length(platform1.t));
+
+platform1.omega_upper_limit = zeros(3,length(platform1.t));
+platform1.omega_lower_limit = zeros(3,length(platform1.t));
+
+platform1.omega_dot_upper_limit = zeros(3,length(platform1.t));
+platform1.omega_dot_lower_limit = zeros(3,length(platform1.t));
+
+
 
 
 
@@ -476,6 +487,17 @@ for i = 2:length(platform1.t)
 
     platform1.R_Euler(:,i)= rotm2eul(reshape(platform1.R(:, i),3,3),"XYZ");
 
+
+    % Save the Platform constraint
+    platform1.Attitude_upper_limit(:,i) = [0.785;0.785;3.14];
+    platform1.Attitude_lower_limit(:,i) = [-0.785;-0.785;-3.14];
+
+    platform1.omega_upper_limit(:,i) = [0.1745;0.1745;0.1745];
+    platform1.omega_lower_limit(:,i) = [-0.1745;-0.1745;-0.1745];
+
+    platform1.omega_dot_upper_limit(:,i) = [0.0375;0.0375;0.0375];
+    platform1.omega_dot_lower_limit(:,i) = [-0.0375;-0.0375;-0.0375];
+    
     
 end
 

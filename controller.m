@@ -1,7 +1,7 @@
 classdef controller
     properties
   
-         kR = diag([10,10,10]);
+         kR = diag([2,2,2]);
          kW = diag([1,1,1]);
         
          M = [0;0;0];
@@ -10,7 +10,7 @@ classdef controller
 
          theta = [0;0;0;0;0;0;0;0;0];
 
-         gamma =  diag([0.00000001,0.00000001,0.00000001,0.00000001,0.00000001,0.00000001,0.000001,0.000001,0.000001]);
+         gamma =  diag([0.000000001,0.000000001,0.000000001,0.000000001,0.000000001,0.000000001,0.000001,0.000001,0.000001]);
 
          c2 = 6.5
         %% ICL
@@ -22,7 +22,7 @@ classdef controller
         
         last_R = [1 0 0;0 1 0;0 0 1]
 
-        k_icl =  diag([500000000,500000000,500000000,500000000,500000000,500000000,5000,5000,5000]);
+        k_icl =  diag([50000000000,50000000000,50000000000,50000000000,50000000000,50000000000,5000,5000,5000]);
 
         N = 90;      
         
@@ -189,7 +189,7 @@ classdef controller
                         % "obj.icl_term_temp" to 0
                         obj.icl_term_temp = zeros(3,1);
 
-                      if(iteration<40000)
+                      if(iteration<60000)
                           obj.k = 1;
                       else
                           obj.k = 0;
@@ -331,8 +331,6 @@ classdef controller
 
 
                     %Add the R.W Feedback term
-
-
 
                     RW_Feedback = W_now_hat*AW*J_RW*Omega_now;
 

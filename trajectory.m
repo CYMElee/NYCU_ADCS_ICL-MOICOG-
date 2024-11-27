@@ -3,12 +3,12 @@ classdef trajectory
        function desired = traj_generate(obj, t,iteration,type,platform)
         
 
-      frequency_x = 0.3;
-      frequency_y = 0.3;
-      frequency_z = 0.08;
-      amplitude_x = 0.5;
-      amplitude_y = 0.5;
-      amplitude_z = 2;
+      frequency_x = 0.1;
+      frequency_y = 0.1;
+      frequency_z = 0.05;
+      amplitude_x = 0.3;
+      amplitude_y = 0.3;
+      amplitude_z = 1;
 
         if type == "twist"
 %            % xd, vd, b1d
@@ -18,7 +18,7 @@ classdef trajectory
 
            desired_attitude  =[ -amplitude_x*cos(frequency_x*t)...
                     ,amplitude_y*cos(frequency_y*t),...
-                    amplitude_z*(-cos(frequency_z*t))]';
+                    amplitude_z*(-sin(frequency_z*t))]';
 
      
 
@@ -27,7 +27,7 @@ classdef trajectory
 
            omegad =[    amplitude_x*frequency_x*sin(frequency_x*t);...    
                         amplitude_y*(-frequency_y*sin(frequency_y*t));...
-                         amplitude_z*(frequency_z*sin(frequency_z*t))];
+                        -amplitude_z*(frequency_z*cos(frequency_z*t))];
 
        
 
@@ -40,7 +40,7 @@ classdef trajectory
 
            omegad_dot =[ (frequency_x^2)*amplitude_x*cos(frequency_x*t);...    
                            -(frequency_y^2)*amplitude_y*cos(frequency_y*t);...
-                         (frequency_z^2)*amplitude_z*cos(frequency_z*t)]; 
+                         (frequency_z^2)*amplitude_z*sin(frequency_z*t)]; 
 
           
               
