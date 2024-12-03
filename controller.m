@@ -1,7 +1,7 @@
 classdef controller
     properties
   
-         kR = diag([2,2,2]);
+         kR = diag([90,90,50]);
          kW = diag([1,1,1]);
         
          M = [0;0;0];
@@ -22,7 +22,7 @@ classdef controller
         
         last_R = [1 0 0;0 1 0;0 0 1]
 
-        k_icl =  diag([50000000000,50000000000,50000000000,50000000000,50000000000,50000000000,5000,5000,5000]);
+        k_icl =  diag([5000000000,5000000000,5000000000,5000000000,5000000000,5000000000,5000,5000,5000]);
 
         N = 90;      
         
@@ -45,7 +45,7 @@ classdef controller
    methods
 
        
-       function [control,eR,eW,obj, singular_value_y_sys_icl,left_singular_value_y_sys_icl,right_singular_value_y_sys_icl,icl_term_return] = geometric_tracking_ctrl(obj,iteration,platform,desired,type)
+       function [control,eR,eW,obj, singular_value_y_sys_icl,left_singular_value_y_sys_icl,right_singular_value_y_sys_icl,icl_term_return,Omega_dot_now,Omega_now] = geometric_tracking_ctrl(obj,iteration,platform,desired,type)
 
                 control = zeros(3,1);
 
@@ -181,19 +181,19 @@ classdef controller
 
                         % return the (m-y_sys^{icl})*theta
                         icl_term_return = obj.icl_term_temp;
-                      %  if(iteration==180001)
-                           %icl_term_return =  M_bar-y_cl *obj.theta;
-                       % end
+                        if(iteration==180001)
+                           icl_term_return =  M_bar-y_cl *obj.theta;
+                        end
 
                         % after return icl_term_return,set the
                         % "obj.icl_term_temp" to 0
                         obj.icl_term_temp = zeros(3,1);
 
-                      if(iteration<60000)
-                          obj.k = 1;
-                      else
+                      %if(iteration<60000)
+                       %   obj.k = 1;
+                      %else
                           obj.k = 0;
-                      end
+                      %end
             
                          obj.theta_hat_dot = -obj.gamma*Y'*obj.k*(eW+obj.c2*eR) + obj.gamma*obj.k_icl * x;
                         % Do S.V.D on y_sys^{icl}
@@ -231,8 +231,9 @@ classdef controller
 
 
                 elseif type == "ICL_RW"
-        
-                   o_b = W_hat*R_now'*R_d*W_d - R_now'*R_d*W_d_dot; 
+                   
+
+                    o_b = W_hat*R_now'*R_d*W_d - R_now'*R_d*W_d_dot; 
 
                    Y1 = [   0   -platform.m*g_body(3)  platform.m*g_body(2);...
                     platform.m*g_body(3)   0               -platform.m*g_body(1);...
@@ -243,33 +244,36 @@ classdef controller
                            W_now(1)*W_now(3), -o_b(2) ,-W_now(1)*W_now(3) ,-o_b(1)+W_now(2)*W_now(3) ,-W_now(1)^2 + W_now(3)^2 , -o_b(3)-W_now(1)*W_now(2);...
                            -W_now(1)*W_now(2) ,W_now(1)*W_now(2), -o_b(3) ,-W_now(2)^2 + W_now(1)^2  ,-o_b(1)-W_now(2)*W_now(3), -o_b(2)+W_now(1)*W_now(3)];
 
-                    Y = [Y2,Y1];
+                   Y = [Y2,Y1];
 
-                    Y_omega = [ 0                   ,-W_now(2)*W_now(3) ,W_now(2)*W_now(3)             ,-W_now(1)*W_now(3)      ,W_now(1)*W_now(2)          , -W_now(3)^2 + W_now(2)^2 ;...
+                   Y_omega = [ 0                   ,-W_now(2)*W_now(3) ,W_now(2)*W_now(3)             ,-W_now(1)*W_now(3)      ,W_now(1)*W_now(2)          , -W_now(3)^2 + W_now(2)^2 ;...
                                 W_now(1)*W_now(3)   , 0                 ,-W_now(1)*W_now(3)            , W_now(2)*W_now(3)      ,-W_now(1)^2 + W_now(3)^2   , -W_now(1)*W_now(2);...
                                 -W_now(1)*W_now(2)  ,W_now(1)*W_now(2)  , 0                            ,-W_now(2)^2 + W_now(1)^2,-W_now(2)*W_now(3)         , W_now(1)*W_now(3)];
 
-                    W_dot = (W_now-obj.last_W);
+                   W_dot = (W_now-obj.last_W);
                   
-                    Y_CoG_icl = [   0   -platform.m*g_body(3)  platform.m*g_body(2);...
-                    platform.m*g_body(3)   0               -platform.m*g_body(1);...
-                    -platform.m*g_body(2)   platform.m*g_body(1)   0];
+                   Y_CoG_icl = [   0   -platform.m*g_body(3)  platform.m*g_body(2);...
+                   platform.m*g_body(3)   0               -platform.m*g_body(1);...
+                   -platform.m*g_body(2)   platform.m*g_body(1)   0];
                    
-                    W_dot_matrix = [W_dot(1)     ,0        ,0            ,W_dot(2) ,W_dot(3),0       ;...
+                   W_dot_matrix = [W_dot(1)     ,0        ,0            ,W_dot(2) ,W_dot(3),0       ;...
                                        0        , W_dot(2),0            ,W_dot(1) ,0       ,W_dot(3);...
                                        0        , 0       ,    W_dot(3) ,0        ,W_dot(1),W_dot(2)];
                                    
 
-                    M_bar = obj.M*platform.dt;
+                   M_bar = obj.M*platform.dt;
 
 
-                    y_W = Y_omega*platform.dt + W_dot_matrix;
+                   y_W = Y_omega*platform.dt + W_dot_matrix;
 
 
-                    y_cl = [y_W,Y_CoG_icl*platform.dt];
+                   
+                    
+                   % y_cl = [Y_CoG_icl*platform.dt,y_W];
+                   y_cl = [y_W,Y_CoG_icl*platform.dt];
                     
 
-                integral_num = 30;
+                integral_num = 90;
                 for i = integral_num-1:-1:1
                     obj.Y_icl_last(:,:,i+1) = obj.Y_icl_last(:,:,i);
                     obj.M_icl_last(:,i+1) = obj.M_icl_last(:,i);
@@ -299,13 +303,36 @@ classdef controller
                         for i=2:obj.N
                                 x = x + obj.sigma_y_array(:,:,i)'*(obj.sigma_M_hat_array(:,i) - obj.sigma_y_array(:,:,i)*obj.theta );
                                 obj.y_icl_temp = obj.y_icl_temp+obj.sigma_y_array(:,:,i);
+                                obj.icl_term_temp = obj.icl_term_temp+(obj.sigma_M_hat_array(:,i) - obj.sigma_y_array(:,:,i)*obj.theta );
+
                         end
-                         obj.theta_hat_dot = -obj.gamma*Y'*(eW+obj.c2*eR) + obj.gamma*obj.k_icl * x;
+                        
+                        
+
+                        % return the (m-y_sys^{icl})*theta
+                        icl_term_return = obj.icl_term_temp;
+                        if(iteration==180001)
+                           icl_term_return =  M_bar-y_cl *obj.theta;
+                        end
+
+                        % after return icl_term_return,set the
+                        % "obj.icl_term_temp" to 0
+                        obj.icl_term_temp = zeros(3,1);
+
+                     % if(iteration<60000)
+                      %    obj.k = 1;
+                     % else
+                     %     obj.k = 0;
+                      %end
+            
+                         obj.theta_hat_dot = -obj.gamma*Y'*obj.k*(eW+obj.c2*eR) + obj.gamma*obj.k_icl * x;
+                        % Do S.V.D on y_sys^{icl}
+
                          [U,S,V] = svd(obj.y_icl_temp);
+
                          singular_value_y_sys_icl = S;
                          left_singular_value_y_sys_icl = U;
                          right_singular_value_y_sys_icl = V;
-                     
                          obj.y_icl_temp = zeros(3,9);
                     else
                         for i= 1:obj.N-1
@@ -318,6 +345,7 @@ classdef controller
                         singular_value_y_sys_icl = zeros(3,9);
                         left_singular_value_y_sys_icl = zeros(3,3);
                         right_singular_value_y_sys_icl = zeros(9,9);
+                        icl_term_return = zeros(3,1);
 
                         obj.sigma_M_hat_array(:,obj.N) = M_bar;
                         obj.sigma_y_array(:,:,obj.N) = y_cl;
@@ -337,14 +365,14 @@ classdef controller
 
                     obj.M = -obj.kR * eR - obj.kW*eW + Y*obj.theta+RW_Feedback; 
 
-                    platform.Omega_dot(:,iteration) = -(HW_inv/J_RW)*[obj.M;0]; %renwe the R.W angular accelerate
-
-                    Omega_dot_now = platform.Omega_dot(:,iteration);
-                    Omega_now = Omega_now+Omega_dot_now*platform.dt;  %renwe the R.W angular velocity
-
+                   Omega_dot_now = -(HW_inv/J_RW)*[obj.M;0]; %renwe the R.W angular accelerate
+                    
+                    
+                   
+                   Omega_now = Omega_now+Omega_dot_now*platform.dt;  %renwe the R.W angular velocity
+                 
                     obj.M_RW = -(AW*J_RW*Omega_dot_now+W_now_hat*AW*J_RW*Omega_now);
                     obj.M = obj.M_RW;
-
 
                 end
              

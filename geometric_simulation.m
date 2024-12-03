@@ -1,4 +1,4 @@
-clear;
+ clear;
 close all;
 
 addpath('geometry-toolbox')
@@ -267,8 +267,8 @@ traj = trajectory;
               
  %% start iteration
 
-traj_type = "twist";   %"circle","position"
-controller_type = "ICL";   %"origin","EMK","adaptive","ICL"
+traj_type = "twist";   %"twist","exp"
+controller_type = "ICL_RW";   %"origin","EMK","adaptive","ICL"
 
 control_output_platform1  = zeros(3,1);
 control_platform1.theta = 0.9*[platform1.J(1,1);platform1.J(2,2);platform1.J(3,3);platform1.J(1,2);platform1.J(1,3);platform1.J(2,3);platform1.pc_2_mc(1);platform1.pc_2_mc(2);platform1.pc_2_mc(3)];
@@ -282,7 +282,7 @@ for i = 2:length(platform1.t)
     desired = traj.traj_generate(t_now,i,traj_type,platform1);
     platform1.Rd_Euler(:,i)=desired(:,1);
     % calculate control force
-    [control_output_platform1, platform1.eR(:, i), platform1.eW(:, i),control_platform1,platform1.y_sys_icl_singular_value(:,:,i),platform1.y_sys_icl_left_singular_value(:,:,i),platform1.y_sys_icl_right_singular_value(:,:,i),platform1.icl_term(:,i)] = control_platform1.geometric_tracking_ctrl(i,platform1,desired,controller_type);
+    [control_output_platform1, platform1.eR(:, i), platform1.eW(:, i),control_platform1,platform1.y_sys_icl_singular_value(:,:,i),platform1.y_sys_icl_left_singular_value(:,:,i),platform1.y_sys_icl_right_singular_value(:,:,i),platform1.icl_term(:,i),platform1.Omega_dot(:,i),platform1.Omega(:,i)] = control_platform1.geometric_tracking_ctrl(i,platform1,desired,controller_type);
     
     %store the y_sys_icl to y_sys_icl use to plot
     y_sys_icl_11(i) = platform1.y_sys_icl_singular_value(1,1,i);
