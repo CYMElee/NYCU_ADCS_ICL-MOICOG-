@@ -3,6 +3,33 @@ close all;
 font = 20;
 
 
+%%A.B,R.W(Angular velocity)
+figure('Name','A.B,R.W(Omega)')
+subplot(4,1,1);
+plot(platform1.t(2:end),platform1.Omega(1,2:end),"LineWidth",2);
+subplot(4,1,2);
+plot(platform1.t(2:end),platform1.Omega(2,2:end),"LineWidth",2);
+subplot(4,1,3);
+plot(platform1.t(2:end),platform1.Omega(3,2:end),"LineWidth",2);
+subplot(4,1,4);
+plot(platform1.t(2:end),platform1.Omega(4,2:end),"LineWidth",2);
+
+
+
+%%A.B,R.W(Torque)
+figure('Name','A.B,R.W(Torque)')
+subplot(4,1,1);
+plot(platform1.t(2:end),(platform1.Omega_dot(1,2:end))*platform1.J_RW,"LineWidth",2);
+subplot(4,1,2);
+plot(platform1.t(2:end),(platform1.Omega_dot(2,2:end))*platform1.J_RW,"LineWidth",2);
+subplot(4,1,3);
+plot(platform1.t(2:end),(platform1.Omega_dot(3,2:end))*platform1.J_RW,"LineWidth",2);
+subplot(4,1,4);
+plot(platform1.t(2:end),(platform1.Omega_dot(4,2:end))*platform1.J_RW,"LineWidth",2);
+
+
+
+
 %% Attitude
 figure('Name','Attitude result');
 subplot(3,2,1);
@@ -1401,3 +1428,11 @@ plot(platform1.t(2:end),y_sys_icl_right_99(2:end),"LineWidth",2);
 title('$V_{9,9}$','interpreter','latex', 'FontSize', font);
 grid on;
 axis([-inf inf -0.5 0.5])
+
+
+
+
+
+
+
+

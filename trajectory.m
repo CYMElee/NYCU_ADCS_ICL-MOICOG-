@@ -9,12 +9,12 @@ classdef trajectory
 %            % xd, vd, b1d
            % xd
 
-           frequency_x = 0.7;
-           frequency_y = 0.7;
-           frequency_z = 0.5;
-           amplitude_x = 0.5;
-           amplitude_y = 0.5;
-           amplitude_z = 2;
+           frequency_x = 0.4;
+           frequency_y = 0.4;
+           frequency_z = 0.1;
+           amplitude_x = 0.2;
+           amplitude_y = 0.1;
+           amplitude_z = 0.1;
 
 
         

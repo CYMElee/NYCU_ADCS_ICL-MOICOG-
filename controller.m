@@ -1,28 +1,28 @@
 classdef controller
     properties
   
-         kR = diag([90,90,50]);
+         kR = diag([3,3,3]);
          kW = diag([1,1,1]);
-        
+         
          M = [0;0;0];
          M_RW =[0;0;0];
          %% adaptive
 
          theta = [0;0;0;0;0;0;0;0;0];
 
-         gamma =  diag([0.000000001,0.000000001,0.000000001,0.000000001,0.000000001,0.000000001,0.000001,0.000001,0.000001]);
+         gamma =  diag([0.0000000001,0.0000000001,0.0000000001,0.0000000001,0.0000000001,0.0000000001,0.0000001,0.0000001,0.0000001]);
 
          c2 = 6.5
         %% ICL
-        Y_icl_last = zeros(3,9,90);
-        M_icl_last = zeros(3,90);
+        Y_icl_last = zeros(3,9,100);
+        M_icl_last = zeros(3,100);
        
         last_W = [0;0;0];
 
         
         last_R = [1 0 0;0 1 0;0 0 1]
 
-        k_icl =  diag([5000000000,5000000000,5000000000,5000000000,5000000000,5000000000,5000,5000,5000]);
+        k_icl =  diag([50000000000,50000000000,50000000000,50000000000,50000000000,50000000000,5000,5000,5000]);
 
         N = 90;      
         
@@ -50,6 +50,8 @@ classdef controller
                 control = zeros(3,1);
 
                 % platform 
+                %using for integral on [0 delta t] interval
+                integral_num = 100;
                 
                 R_now = reshape(platform.R(:,iteration-1), 3, 3);
                 W_now = platform.W(:,iteration-1);
@@ -98,8 +100,8 @@ classdef controller
                        obj.theta = obj.theta + obj.theta_hat_dot*platform.dt;
 
                        obj.M = -obj.kR * eR - obj.kW*eW + Y*obj.theta;
-
-
+                    
+                    
                 elseif type == "ICL"
                    
 
@@ -139,39 +141,47 @@ classdef controller
 
                    
                     
-                   % y_cl = [Y_CoG_icl*platform.dt,y_W];
+                   
                    y_cl = [y_W,Y_CoG_icl*platform.dt];
                     
 
-                integral_num = 90;
+                % Renew the ICL regression matrix array, renew the newest array
+                % by previous namely, offset overall array 1 position
+                
                 for i = integral_num-1:-1:1
                     obj.Y_icl_last(:,:,i+1) = obj.Y_icl_last(:,:,i);
                     obj.M_icl_last(:,i+1) = obj.M_icl_last(:,i);
                 end
+                % Record the newest regression matrix,place the newest data
+                % On index [1]
+            
                         obj.Y_icl_last(:,:,1) = y_cl;
                         obj.M_icl_last(:,1) = M_bar;
                         M_bar_int = zeros(3,1);
                         y_icl_int = zeros(3,9);
+                % Add the newest "integral_num" data as "y_icl_int" and "M_bar_int"    
                    for i= 1:integral_num
                         y_icl_int = y_icl_int + obj.Y_icl_last(:,:,i);
                         M_bar_int = M_bar_int + obj.M_icl_last(:,i);
                    end
-                    
-
-                    if iteration > obj.N
-                        for i= 1:obj.N-1
-                            obj.sigma_M_hat_array(:,i) = obj.sigma_M_hat_array(:,i+1);
-                            obj.sigma_y_array(:,:,i) = obj.sigma_y_array(:,:,i+1);
+                      
+                   % If the time step reach the ICL summation turn
+                   if iteration > obj.N
+                        for i=obj.N-1:-1:1
+                            obj.sigma_M_hat_array(:,i+1)=obj.sigma_M_hat_array(:,i);
+                            obj.sigma_y_array(:,:,i+1)= obj.sigma_y_array(:,:,i);
                         end
-                        obj.sigma_M_hat_array(:,obj.N) = M_bar_int;
-                        obj.sigma_y_array(:,:,obj.N) = y_icl_int;
+                        % The sigma_M_hat_array & sigma_y_array use to
+                        % store the,y_{sys}^{icl} & m that be summation
+                        obj.sigma_M_hat_array(:,1) = M_bar_int;
+                        obj.sigma_y_array(:,:,1) = y_icl_int;
                         
 
 
 
                         x = zeros(9,1);
-                        for i=2:obj.N
-                                x = x + obj.sigma_y_array(:,:,i)'*(obj.sigma_M_hat_array(:,i) - obj.sigma_y_array(:,:,i)*obj.theta );
+                        for i=1:obj.N
+                                x =x+obj.sigma_y_array(:,:,i)'*(obj.sigma_M_hat_array(:,i) - obj.sigma_y_array(:,:,i)*obj.theta );
                                 obj.y_icl_temp = obj.y_icl_temp+obj.sigma_y_array(:,:,i);
                                 obj.icl_term_temp = obj.icl_term_temp+(obj.sigma_M_hat_array(:,i) - obj.sigma_y_array(:,:,i)*obj.theta );
 
@@ -189,13 +199,13 @@ classdef controller
                         % "obj.icl_term_temp" to 0
                         obj.icl_term_temp = zeros(3,1);
 
-                      %if(iteration<60000)
-                       %   obj.k = 1;
+                     % if(iteration<60000)
+                          obj.k = 1;
                       %else
-                          obj.k = 0;
-                      %end
+                       %   obj.k = 0;
+                    %  end
             
-                         obj.theta_hat_dot = -obj.gamma*Y'*obj.k*(eW+obj.c2*eR) + obj.gamma*obj.k_icl * x;
+                         obj.theta_hat_dot = -obj.gamma*Y'*obj.k*(eW+obj.c2*eR) + obj.gamma*obj.k_icl*x;
                         % Do S.V.D on y_sys^{icl}
 
                          [U,S,V] = svd(obj.y_icl_temp);
@@ -205,10 +215,14 @@ classdef controller
                          right_singular_value_y_sys_icl = V;
                          obj.y_icl_temp = zeros(3,9);
                     else
-                        for i= 1:obj.N-1
-                            obj.sigma_M_hat_array(:,i) = obj.sigma_M_hat_array(:,i+1);
-                            obj.sigma_y_array(:,:,i) = obj.sigma_y_array(:,:,i+1);
+                        for i=obj.N-1:-1:1
+                            obj.sigma_M_hat_array(:,i+1)=obj.sigma_M_hat_array(:,i);
+                             obj.sigma_y_array(:,:,i+1)= obj.sigma_y_array(:,:,i);
                         end
+                        % The sigma_M_hat_array & sigma_y_array use to
+                        % store the,y_{sys}^{icl} & m that be summation
+                        obj.sigma_M_hat_array(:,1) = M_bar_int;
+                        obj.sigma_y_array(:,:,1) = y_icl_int;
                         
                         %if the step not reach N set the singular vector as
                         %0
@@ -217,13 +231,11 @@ classdef controller
                         right_singular_value_y_sys_icl = zeros(9,9);
                         icl_term_return = zeros(3,1);
 
-                        obj.sigma_M_hat_array(:,obj.N) = M_bar;
-                        obj.sigma_y_array(:,:,obj.N) = y_cl;
                         obj.theta_hat_dot = -obj.gamma*Y'*(eW+obj.c2*eR);  
                     end
 
                     obj.last_W = W_now;
-                
+         
                     obj.last_R = R_now;
                     obj.theta = obj.theta + obj.theta_hat_dot*platform.dt;
                     obj.M = -obj.kR * eR - obj.kW*eW + Y*obj.theta;
@@ -269,39 +281,47 @@ classdef controller
 
                    
                     
-                   % y_cl = [Y_CoG_icl*platform.dt,y_W];
+                   
                    y_cl = [y_W,Y_CoG_icl*platform.dt];
                     
 
-                integral_num = 90;
+                % Renew the ICL regression matrix array, renew the newest array
+                % by previous namely, offset overall array 1 position
+                
                 for i = integral_num-1:-1:1
                     obj.Y_icl_last(:,:,i+1) = obj.Y_icl_last(:,:,i);
                     obj.M_icl_last(:,i+1) = obj.M_icl_last(:,i);
                 end
+                % Record the newest regression matrix,place the newest data
+                % On index [1]
+            
                         obj.Y_icl_last(:,:,1) = y_cl;
                         obj.M_icl_last(:,1) = M_bar;
                         M_bar_int = zeros(3,1);
                         y_icl_int = zeros(3,9);
+                % Add the newest "integral_num" data as "y_icl_int" and "M_bar_int"    
                    for i= 1:integral_num
                         y_icl_int = y_icl_int + obj.Y_icl_last(:,:,i);
                         M_bar_int = M_bar_int + obj.M_icl_last(:,i);
                    end
-                    
-
-                    if iteration > obj.N
-                        for i= 1:obj.N-1
-                            obj.sigma_M_hat_array(:,i) = obj.sigma_M_hat_array(:,i+1);
-                            obj.sigma_y_array(:,:,i) = obj.sigma_y_array(:,:,i+1);
+                      
+                   % If the time step reach the ICL summation turn
+                   if iteration > obj.N
+                        for i=obj.N-1:-1:1
+                            obj.sigma_M_hat_array(:,i+1)=obj.sigma_M_hat_array(:,i);
+                            obj.sigma_y_array(:,:,i+1)= obj.sigma_y_array(:,:,i);
                         end
-                        obj.sigma_M_hat_array(:,obj.N) = M_bar_int;
-                        obj.sigma_y_array(:,:,obj.N) = y_icl_int;
+                        % The sigma_M_hat_array & sigma_y_array use to
+                        % store the,y_{sys}^{icl} & m that be summation
+                        obj.sigma_M_hat_array(:,1) = M_bar_int;
+                        obj.sigma_y_array(:,:,1) = y_icl_int;
                         
 
 
 
                         x = zeros(9,1);
-                        for i=2:obj.N
-                                x = x + obj.sigma_y_array(:,:,i)'*(obj.sigma_M_hat_array(:,i) - obj.sigma_y_array(:,:,i)*obj.theta );
+                        for i=1:obj.N
+                                x =x+obj.sigma_y_array(:,:,i)'*(obj.sigma_M_hat_array(:,i) - obj.sigma_y_array(:,:,i)*obj.theta );
                                 obj.y_icl_temp = obj.y_icl_temp+obj.sigma_y_array(:,:,i);
                                 obj.icl_term_temp = obj.icl_term_temp+(obj.sigma_M_hat_array(:,i) - obj.sigma_y_array(:,:,i)*obj.theta );
 
@@ -320,12 +340,12 @@ classdef controller
                         obj.icl_term_temp = zeros(3,1);
 
                      % if(iteration<60000)
-                      %    obj.k = 1;
-                     % else
-                     %     obj.k = 0;
-                      %end
+                          obj.k = 1;
+                      %else
+                       %   obj.k = 0;
+                    %  end
             
-                         obj.theta_hat_dot = -obj.gamma*Y'*obj.k*(eW+obj.c2*eR) + obj.gamma*obj.k_icl * x;
+                         obj.theta_hat_dot = -obj.gamma*Y'*obj.k*(eW+obj.c2*eR) + obj.gamma*obj.k_icl*x;
                         % Do S.V.D on y_sys^{icl}
 
                          [U,S,V] = svd(obj.y_icl_temp);
@@ -335,10 +355,14 @@ classdef controller
                          right_singular_value_y_sys_icl = V;
                          obj.y_icl_temp = zeros(3,9);
                     else
-                        for i= 1:obj.N-1
-                            obj.sigma_M_hat_array(:,i) = obj.sigma_M_hat_array(:,i+1);
-                            obj.sigma_y_array(:,:,i) = obj.sigma_y_array(:,:,i+1);
+                        for i=obj.N-1:-1:1
+                            obj.sigma_M_hat_array(:,i+1)=obj.sigma_M_hat_array(:,i);
+                             obj.sigma_y_array(:,:,i+1)= obj.sigma_y_array(:,:,i);
                         end
+                        % The sigma_M_hat_array & sigma_y_array use to
+                        % store the,y_{sys}^{icl} & m that be summation
+                        obj.sigma_M_hat_array(:,1) = M_bar_int;
+                        obj.sigma_y_array(:,:,1) = y_icl_int;
                         
                         %if the step not reach N set the singular vector as
                         %0
@@ -347,8 +371,6 @@ classdef controller
                         right_singular_value_y_sys_icl = zeros(9,9);
                         icl_term_return = zeros(3,1);
 
-                        obj.sigma_M_hat_array(:,obj.N) = M_bar;
-                        obj.sigma_y_array(:,:,obj.N) = y_cl;
                         obj.theta_hat_dot = -obj.gamma*Y'*(eW+obj.c2*eR);  
                     end
 
@@ -365,11 +387,40 @@ classdef controller
 
                     obj.M = -obj.kR * eR - obj.kW*eW + Y*obj.theta+RW_Feedback; 
 
-                   Omega_dot_now = -(HW_inv/J_RW)*[obj.M;0]; %renwe the R.W angular accelerate
+                    Omega_dot_now = -(HW_inv/J_RW)*[obj.M;0]; %renwe the R.W angular accelerate
                     
+                    for O=1:4  %4 R.W Torque
+                        if Omega_dot_now(O)>0 %If Torque>0
+                            %if Omega_now(O)>= 592.71 %If the R.W speed reach +max
+                               % Omega_dot_now(O)=0;
+                           % end
+                            if (Omega_dot_now(O)*J_RW)>0.470
+                               Omega_dot_now(O)=(0.470/J_RW);
+                            end
+
+                        elseif Omega_dot_now(O)<0 %If Torque<0
+                            %if Omega_now(O)<= -592.71 %If the R.W speed reach +max
+                              %  Omega_dot_now(O)=0;
+                            %end
+                            if (Omega_dot_now(O)*J_RW)<-0.470
+                               Omega_dot_now(O)=-(0.470/J_RW);
+                            end
+
+                        end
+                    end
+                  
                     
                    
-                   Omega_now = Omega_now+Omega_dot_now*platform.dt;  %renwe the R.W angular velocity
+                    Omega_now = Omega_now+Omega_dot_now*platform.dt;  %renwe the R.W angular velocity
+                   
+                    %for o=1:4
+                        %if Omega_now(o)>=592.71
+                       %    Omega_now(o) = 592.71;
+                      %  elseif Omega_now(o)<=-592.71
+                     %      Omega_now(o) = -592.71; 
+                    %    end
+                   % end
+
                  
                     obj.M_RW = -(AW*J_RW*Omega_dot_now+W_now_hat*AW*J_RW*Omega_now);
                     obj.M = obj.M_RW;

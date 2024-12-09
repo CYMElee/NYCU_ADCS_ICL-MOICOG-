@@ -273,7 +273,9 @@ controller_type = "ICL_RW";   %"origin","EMK","adaptive","ICL"
 control_output_platform1  = zeros(3,1);
 control_platform1.theta = 0.9*[platform1.J(1,1);platform1.J(2,2);platform1.J(3,3);platform1.J(1,2);platform1.J(1,3);platform1.J(2,3);platform1.pc_2_mc(1);platform1.pc_2_mc(2);platform1.pc_2_mc(3)];
 %control_platform1.theta = 0.9*[platform1.pc_2_mc(1);platform1.pc_2_mc(2);platform1.pc_2_mc(3);platform1.J(1,1);platform1.J(2,2);platform1.J(3,3);platform1.J(1,2);platform1.J(1,3);platform1.J(2,3)];
-
+control_platform1.theta(7)=0.005;
+control_platform1.theta(8)=0.0005;
+control_platform1.theta(9)=-0.002;
 
 for i = 2:length(platform1.t)
     disp(i)
