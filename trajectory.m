@@ -9,18 +9,18 @@ classdef trajectory
 %            % xd, vd, b1d
            % xd
 
-           frequency_x = 0.4;
-           frequency_y = 0.4;
-           frequency_z = 0.1;
-           amplitude_x = 0.2;
+           frequency_x = 0.05;
+           frequency_y = 0.08;
+           frequency_z = 0.04;
+           amplitude_x = 0.1;
            amplitude_y = 0.1;
            amplitude_z = 0.1;
 
 
         
 
-           desired_attitude  =[ amplitude_x*sin(frequency_x*t)...
-                    ,amplitude_y*cos(frequency_y*t),...
+           desired_attitude  =[ amplitude_x*cos(frequency_x*t)...
+                    ,-amplitude_y*cos(frequency_y*t),...
                     amplitude_z*(-sin(frequency_z*t))]';
 
      
@@ -28,8 +28,8 @@ classdef trajectory
 
            
 
-           omegad =[    amplitude_x*frequency_x*cos(frequency_x*t);...    
-                        amplitude_y*(-frequency_y*sin(frequency_y*t));...
+           omegad =[    -amplitude_x*frequency_x*sin(frequency_x*t);...    
+                        amplitude_y*(frequency_y*sin(frequency_y*t));...
                         -amplitude_z*(frequency_z*cos(frequency_z*t))];
 
        
@@ -41,8 +41,8 @@ classdef trajectory
 
            
 
-           omegad_dot =[ -(frequency_x^2)*amplitude_x*sin(frequency_x*t);...    
-                           -(frequency_y^2)*amplitude_y*cos(frequency_y*t);...
+           omegad_dot =[ -(frequency_x^2)*amplitude_x*cos(frequency_x*t);...    
+                           (frequency_y^2)*amplitude_y*cos(frequency_y*t);...
                          (frequency_z^2)*amplitude_z*sin(frequency_z*t)]; 
 
           

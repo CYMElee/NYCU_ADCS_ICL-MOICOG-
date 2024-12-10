@@ -12,7 +12,7 @@ classdef controller
 
          gamma =  diag([0.0000000001,0.0000000001,0.0000000001,0.0000000001,0.0000000001,0.0000000001,0.0000001,0.0000001,0.0000001]);
 
-         c2 = 6.5
+         c2 = 1.5
         %% ICL
         Y_icl_last = zeros(3,9,100);
         M_icl_last = zeros(3,100);
@@ -22,7 +22,7 @@ classdef controller
         
         last_R = [1 0 0;0 1 0;0 0 1]
 
-        k_icl =  diag([50000000000,50000000000,50000000000,50000000000,50000000000,50000000000,5000,5000,5000]);
+        k_icl =  diag([5000000000000,5000000000000,5000000000000,5000000000000,5000000000000,5000000000000,5000,5000,5000]);
 
         N = 90;      
         
@@ -391,17 +391,17 @@ classdef controller
                     
                     for O=1:4  %4 R.W Torque
                         if Omega_dot_now(O)>0 %If Torque>0
-                            %if Omega_now(O)>= 592.71 %If the R.W speed reach +max
+                            if Omega_now(O)>= 592.71 %If the R.W speed reach +max
                                % Omega_dot_now(O)=0;
-                           % end
+                            end
                             if (Omega_dot_now(O)*J_RW)>0.470
                                Omega_dot_now(O)=(0.470/J_RW);
                             end
 
                         elseif Omega_dot_now(O)<0 %If Torque<0
-                            %if Omega_now(O)<= -592.71 %If the R.W speed reach +max
-                              %  Omega_dot_now(O)=0;
-                            %end
+                            if Omega_now(O)<= -592.71 %If the R.W speed reach +max
+                               Omega_dot_now(O)=0;
+                            end
                             if (Omega_dot_now(O)*J_RW)<-0.470
                                Omega_dot_now(O)=-(0.470/J_RW);
                             end
@@ -413,13 +413,13 @@ classdef controller
                    
                     Omega_now = Omega_now+Omega_dot_now*platform.dt;  %renwe the R.W angular velocity
                    
-                    %for o=1:4
-                        %if Omega_now(o)>=592.71
-                       %    Omega_now(o) = 592.71;
-                      %  elseif Omega_now(o)<=-592.71
-                     %      Omega_now(o) = -592.71; 
-                    %    end
-                   % end
+                    for o=1:4
+                        if Omega_now(o)>=592.71
+                           Omega_now(o) = 592.71;
+                        elseif Omega_now(o)<=-592.71
+                           Omega_now(o) = -592.71; 
+                        end
+                    end
 
                  
                     obj.M_RW = -(AW*J_RW*Omega_dot_now+W_now_hat*AW*J_RW*Omega_now);
