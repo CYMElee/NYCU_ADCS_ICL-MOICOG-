@@ -1,9 +1,9 @@
- %% show the result
+%% show the result
 close all;
 font = 20;
 
 
-%%A.B,R.W(Angular velocity)
+%% A.B,R.W(Angular velocity)
 figure('Name','A.B,R.W(Omega)')
 subplot(4,1,1);
 plot(platform1.t(2:end),platform1.Omega(1,2:end),"LineWidth",2);
@@ -16,7 +16,7 @@ plot(platform1.t(2:end),platform1.Omega(4,2:end),"LineWidth",2);
 
 
 
-%%A.B,R.W(Torque)
+%% A.B.,R.W.(Torque)
 figure('Name','A.B,R.W(Torque)')
 subplot(4,1,1);
 plot(platform1.t(2:end),(platform1.Omega_dot(1,2:end))*platform1.J_RW,"LineWidth",2);

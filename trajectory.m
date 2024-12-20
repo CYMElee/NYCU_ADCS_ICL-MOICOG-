@@ -9,21 +9,30 @@ classdef trajectory
 %            % xd, vd, b1d
            % xd
 
-           frequency_x = 0.02;
-           frequency_y = 0.08;
-           frequency_z = 0.1;
-           amplitude_x = 0.5;
-           amplitude_y = 0.5;
-           amplitude_z = 0.5;
+           frequency_x = 0.1;
+           frequency_y = 0.3;
+           frequency_z = 0.09;
+           amplitude_x = 0.4;
+           amplitude_y = 0.4;
+           amplitude_z = 0.4;
 
-           if t>150
+           if t>60
 
-           frequency_x = 0.04;
+           frequency_x = 0.3;
            frequency_y = 0.1;
-           frequency_z = 0.01;
-           amplitude_x = 0.5;
-           amplitude_y = 0.5;
-           amplitude_z = 0.5;
+           frequency_z = 0.09;
+           amplitude_x = 0.4;
+           amplitude_y = 0.4;
+           amplitude_z = 0.4;
+           end
+
+           if t>120
+           frequency_x = 0.05;
+           frequency_y = 0.07;
+           frequency_z = 0.09;
+           amplitude_x = 0.4;
+           amplitude_y = 0.4;
+           amplitude_z = 0.4;
            end
         
 
