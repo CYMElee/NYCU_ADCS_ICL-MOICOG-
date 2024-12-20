@@ -67,9 +67,6 @@ platform1.omega_dot_lower_limit = zeros(3,length(platform1.t));
 platform1.Omega_dot = zeros(4, length(platform1.t));
 platform1.Omega = zeros(4, length(platform1.t));
 
-%init working speed
-platform1.Omega(:,1)=[52.359,-52.359,52.359,-52.359];
-
 
 
 

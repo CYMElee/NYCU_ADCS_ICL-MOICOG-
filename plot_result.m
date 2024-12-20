@@ -1,4 +1,4 @@
-%% show the result
+ %% show the result
 close all;
 font = 20;
 

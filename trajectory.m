@@ -9,14 +9,22 @@ classdef trajectory
 %            % xd, vd, b1d
            % xd
 
-           frequency_x = 0.05;
+           frequency_x = 0.02;
            frequency_y = 0.08;
-           frequency_z = 0.04;
-           amplitude_x = 0.1;
-           amplitude_y = 0.1;
-           amplitude_z = 0.1;
+           frequency_z = 0.1;
+           amplitude_x = 0.5;
+           amplitude_y = 0.5;
+           amplitude_z = 0.5;
 
+           if t>150
 
+           frequency_x = 0.04;
+           frequency_y = 0.1;
+           frequency_z = 0.01;
+           amplitude_x = 0.5;
+           amplitude_y = 0.5;
+           amplitude_z = 0.5;
+           end
         
 
            desired_attitude  =[ amplitude_x*cos(frequency_x*t)...
