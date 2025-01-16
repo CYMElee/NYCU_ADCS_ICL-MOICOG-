@@ -8,36 +8,54 @@ classdef trajectory
         if type == "twist"
 %            % xd, vd, b1d
            % xd
+           % first term
+           frequency_x = 0.25;
+           frequency_y = 0.15;
+           frequency_z = 0.03;
+           amplitude_x = 0.3;
+           amplitude_y = 0.3;
+           amplitude_z = 0.5;
+           %frequency_x_nd = 0.01;
+           %frequency_y_nd = 0.03;
 
-           frequency_x = 0.1;
-           frequency_y = 0.3;
-           frequency_z = 0.09;
-           amplitude_x = 0.4;
-           amplitude_y = 0.4;
-           amplitude_z = 0.4;
+           
 
-           if t>60
 
-           frequency_x = 0.3;
-           frequency_y = 0.1;
-           frequency_z = 0.09;
-           amplitude_x = 0.4;
-           amplitude_y = 0.4;
-           amplitude_z = 0.4;
-           end
 
-           if t>120
-           frequency_x = 0.05;
-           frequency_y = 0.07;
-           frequency_z = 0.09;
-           amplitude_x = 0.4;
-           amplitude_y = 0.4;
-           amplitude_z = 0.4;
-           end
+
+          % if t>100
+          % frequency_x = 0.15;
+           %frequency_y = 0.3;
+           %frequency_z = 0.03;
+           %frequency_x_nd = 0;
+           %frequency_y_nd = 0;
+
+          % amplitude_x = 0.2;
+          % amplitude_y = 0.2;
+           %amplitude_z = 0.1;
+           %end
+
+
+           %if t>100
+           %frequency_x = 0.1;
+           %frequency_y = 0.15;
+           %frequency_z = 0.03;
+           %frequency_x_nd = 0;
+          % frequency_y_nd = 0;
+
+           %amplitude_x = 0.2;
+           %amplitude_y = 0.2;
+          % amplitude_z = 0.1;
+         %  end
+
+
+  
         
 
-           desired_attitude  =[ amplitude_x*cos(frequency_x*t)...
-                    ,-amplitude_y*cos(frequency_y*t),...
+
+
+           desired_attitude  =[ amplitude_x*(cos(frequency_x*t))...
+                    ,amplitude_y*(sin(frequency_y*t)),...
                     amplitude_z*(-sin(frequency_z*t))]';
 
      
@@ -45,8 +63,8 @@ classdef trajectory
 
            
 
-           omegad =[    -amplitude_x*frequency_x*sin(frequency_x*t);...    
-                        amplitude_y*(frequency_y*sin(frequency_y*t));...
+           omegad =[    -amplitude_x*frequency_x*(sin(frequency_x*t));...    
+                        amplitude_y*frequency_y*cos(frequency_y*t);...
                         -amplitude_z*(frequency_z*cos(frequency_z*t))];
 
        
@@ -55,11 +73,10 @@ classdef trajectory
 
 
            desired_angular_velocity = platform.Euler_Matrix*omegad;
-
            
 
            omegad_dot =[ -(frequency_x^2)*amplitude_x*cos(frequency_x*t);...    
-                           (frequency_y^2)*amplitude_y*cos(frequency_y*t);...
+                           -(frequency_y^2)*amplitude_y*sin(frequency_y*t);...
                          (frequency_z^2)*amplitude_z*sin(frequency_z*t)]; 
 
           

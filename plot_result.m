@@ -4,28 +4,84 @@ font = 20;
 
 
 %% A.B,R.W(Angular velocity)
-figure('Name','A.B,R.W(Omega)')
+figure('Name','AB,RW(Omega)')
 subplot(4,1,1);
+
 plot(platform1.t(2:end),platform1.Omega(1,2:end),"LineWidth",2);
+grid on;
+hold on;
+plot(platform1.t(2:end),platform1.Nominal_speed(1,2:end),'r--',"LineWidth",2);
+plot(platform1.t(2:end),platform1.Nominal_speed(2,2:end),'r--',"LineWidth",2);
+title('$RW\ speed$','interpreter','latex', 'FontSize', font);
+ylabel(' $\Omega[rad/sec]$','interpreter','latex','FontSize',font);
+legend('$RW \ speed$','$Nominal\ speed$','interpreter','latex','FontSize',font);
+
 subplot(4,1,2);
 plot(platform1.t(2:end),platform1.Omega(2,2:end),"LineWidth",2);
+grid on;
+hold on;
+plot(platform1.t(2:end),platform1.Nominal_speed(1,2:end),'r--',"LineWidth",2);
+plot(platform1.t(2:end),platform1.Nominal_speed(2,2:end),'r--',"LineWidth",2);
+ylabel(' $\Omega[rad/sec]$','interpreter','latex','FontSize',font);
+legend('$RW \ speed$','$Nominal\ speed$','interpreter','latex','FontSize',font);
 subplot(4,1,3);
 plot(platform1.t(2:end),platform1.Omega(3,2:end),"LineWidth",2);
+grid on;
+hold on;
+plot(platform1.t(2:end),platform1.Nominal_speed(1,2:end),'r--',"LineWidth",2);
+plot(platform1.t(2:end),platform1.Nominal_speed(2,2:end),'r--',"LineWidth",2);
+ylabel(' $\Omega[rad/sec]$','interpreter','latex','FontSize',font);
+legend('$RW \ speed$','$Nominal\ speed$','interpreter','latex','FontSize',font);
 subplot(4,1,4);
 plot(platform1.t(2:end),platform1.Omega(4,2:end),"LineWidth",2);
+grid on;
+hold on;
+plot(platform1.t(2:end),platform1.Nominal_speed(1,2:end),'r--',"LineWidth",2);
+plot(platform1.t(2:end),platform1.Nominal_speed(2,2:end),'r--',"LineWidth",2);
+ylabel(' $\Omega[rad/sec]$','interpreter','latex','FontSize',font);
+xlabel(' $t[sec]$','interpreter','latex','FontSize',font);
+legend('$RW \ speed$','$Nominal\ speed$','interpreter','latex','FontSize',font);
+axis([-inf inf -600 600]);
 
 
 
-%% A.B.,R.W.(Torque)
-figure('Name','A.B,R.W(Torque)')
+%% AB,RW(Torque)
+figure('Name','AB,RW(Torque)')
 subplot(4,1,1);
 plot(platform1.t(2:end),(platform1.Omega_dot(1,2:end))*platform1.J_RW,"LineWidth",2);
+grid on;
+hold on;
+plot(platform1.t(2:end),platform1.Nominal_torque(1,2:end),'r--',"LineWidth",2);
+plot(platform1.t(2:end),platform1.Nominal_torque(2,2:end),'r--',"LineWidth",2);
+title('$RW\ torque$','interpreter','latex', 'FontSize', font);
+ylabel(' $\tau[Nm]$','interpreter','latex','FontSize',font);
+legend('$RWtorque$','$Nominal\ torque$','interpreter','latex','FontSize',font);
 subplot(4,1,2);
 plot(platform1.t(2:end),(platform1.Omega_dot(2,2:end))*platform1.J_RW,"LineWidth",2);
+grid on;
+hold on;
+plot(platform1.t(2:end),platform1.Nominal_torque(1,2:end),'r--',"LineWidth",2);
+plot(platform1.t(2:end),platform1.Nominal_torque(2,2:end),'r--',"LineWidth",2);
+ylabel(' $\tau[Nm]$','interpreter','latex','FontSize',font);
+legend('$RWtorque$','$Nominal\ torque$','interpreter','latex','FontSize',font);
 subplot(4,1,3);
 plot(platform1.t(2:end),(platform1.Omega_dot(3,2:end))*platform1.J_RW,"LineWidth",2);
+grid on;
+hold on;
+plot(platform1.t(2:end),platform1.Nominal_torque(1,2:end),'r--',"LineWidth",2);
+plot(platform1.t(2:end),platform1.Nominal_torque(2,2:end),'r--',"LineWidth",2);
+ylabel(' $\tau[Nm]$','interpreter','latex','FontSize',font);
+legend('$RWtorque$','$Nominal\ torque$','interpreter','latex','FontSize',font);
 subplot(4,1,4);
 plot(platform1.t(2:end),(platform1.Omega_dot(4,2:end))*platform1.J_RW,"LineWidth",2);
+grid on;
+hold on;
+plot(platform1.t(2:end),platform1.Nominal_torque(1,2:end),'r--',"LineWidth",2);
+plot(platform1.t(2:end),platform1.Nominal_torque(2,2:end),'r--',"LineWidth",2);
+ylabel(' $\tau[Nm]$','interpreter','latex','FontSize',font);
+xlabel(' $t[sec]$','interpreter','latex','FontSize',font);
+legend('$RWtorque$','$Nominal\ torque$','interpreter','latex','FontSize',font);
+axis([-inf inf -0.5 0.5]);
 
 
 
@@ -92,36 +148,36 @@ title('$Attitude\ Error\ in\ Yaw\ Direction$','interpreter','latex', 'FontSize',
 axis([-inf inf -1 1])
 
 %% Attitude 
-figure('Name','Platform attitude');
-subplot(3,1,1);
-plot(platform1.t(2:end),platform1.R_Euler(1,2:end),"LineWidth",2);
-grid on;
-hold on;
-plot(platform1.t(2:end),platform1.Attitude_upper_limit(1,2:end),'r--',"LineWidth",2);
-plot(platform1.t(2:end),platform1.Attitude_lower_limit(1,2:end),'r--',"LineWidth",2);
-ylabel(' $Roll[rad]$','interpreter','latex','FontSize',24);
-title('$Platfrom\ attitude$','interpreter','latex', 'FontSize', 24);
-legend('$Roll$','$upper$','$lower$','interpreter','latex','FontSize',font);
-axis([-inf inf -0.78 0.78])
-subplot(3,1,2);
-plot(platform1.t(2:end),platform1.R_Euler(2,2:end),"LineWidth",2);
-grid on;
-hold on;
-plot(platform1.t(2:end),platform1.Attitude_upper_limit(2,2:end),'r--',"LineWidth",2);
-plot(platform1.t(2:end),platform1.Attitude_lower_limit(2,2:end),'r--',"LineWidth",2);
-ylabel(' $Pitch[rad]$','interpreter','latex','FontSize',24);
-legend('$Pitch$','$upper$','$lower$','interpreter','latex','FontSize',font);
-axis([-inf inf -0.78 0.78])
-subplot(3,1,3);
-plot(platform1.t(2:end),platform1.R_Euler(3,2:end),"LineWidth",2);
-grid on;
-hold on;
-plot(platform1.t(2:end),platform1.Attitude_upper_limit(3,2:end),'r--',"LineWidth",2);
-plot(platform1.t(2:end),platform1.Attitude_lower_limit(3,2:end),'r--',"LineWidth",2);
-xlabel(' $t[s]$','interpreter','latex','FontSize',24);
-ylabel(' $Yaw[rad]$','interpreter','latex','FontSize',24);
-legend('$Yaw$','$upper$','$lower$','interpreter','latex','FontSize',font);
-axis([-inf inf -3.17 3.17])
+%figure('Name','Platform attitude');
+%subplot(3,1,1);
+%plot(platform1.t(2:end),platform1.R_Euler(1,2:end),"LineWidth",2);
+%grid on;
+%hold on;
+%plot(platform1.t(2:end),platform1.Attitude_upper_limit(1,2:end),'r--',"LineWidth",2);
+%plot(platform1.t(2:end),platform1.Attitude_lower_limit(1,2:end),'r--',"LineWidth",2);
+%ylabel(' $Roll[rad]$','interpreter','latex','FontSize',24);
+%title('$Platfrom\ attitude$','interpreter','latex', 'FontSize', 24);
+%legend('$Roll$','$upper$','$lower$','interpreter','latex','FontSize',font);
+%axis([-inf inf -0.78 0.78])
+%subplot(3,1,2);
+%plot(platform1.t(2:end),platform1.R_Euler(2,2:end),"LineWidth",2);
+%grid on;
+%hold on;
+%plot(platform1.t(2:end),platform1.Attitude_upper_limit(2,2:end),'r--',"LineWidth",2);
+%plot(platform1.t(2:end),platform1.Attitude_lower_limit(2,2:end),'r--',"LineWidth",2);
+%ylabel(' $Pitch[rad]$','interpreter','latex','FontSize',24);
+%legend('$Pitch$','$upper$','$lower$','interpreter','latex','FontSize',font);
+%axis([-inf inf -0.78 0.78])
+%subplot(3,1,3);
+%plot(platform1.t(2:end),platform1.R_Euler(3,2:end),"LineWidth",2);
+%grid on;
+%hold on;
+%plot(platform1.t(2:end),platform1.Attitude_upper_limit(3,2:end),'r--',"LineWidth",2);
+%plot(platform1.t(2:end),platform1.Attitude_lower_limit(3,2:end),'r--',"LineWidth",2);
+%xlabel(' $t[s]$','interpreter','latex','FontSize',24);
+%ylabel(' $Yaw[rad]$','interpreter','latex','FontSize',24);
+%legend('$Yaw$','$upper$','$lower$','interpreter','latex','FontSize',font);
+%axis([-inf inf -3.17 3.17])
 
 
 
@@ -227,7 +283,7 @@ axis([-inf inf -0.05 0.05])
 %% theta inertial
 
 %MoI 
-figure('Name','Estimation of the MoI');
+figure('Name','Estimation of the MOI');
 
 subplot(3,1,1);
 plot(platform1.t(2:end),real_theta_array_platform1(1,2:end),'--',"LineWidth",2);
@@ -236,7 +292,7 @@ hold on;
 plot(platform1.t(2:end),theta_array_platform1(1,2:end),"LineWidth",2);
 ylabel(' $J_{xx}[kgm^2]$','interpreter','latex','FontSize',font);
 legend('$J_{xx}$','$J_{xx}estimate$','interpreter','latex','FontSize',font);
-title('$Estimation\ of\ the\ MoI$','interpreter','latex', 'FontSize', font);
+title('$Estimation\ of\ the\ MOI$','interpreter','latex', 'FontSize', font);
 axis([-inf inf 4 8])
 
 
@@ -261,7 +317,7 @@ axis([-inf inf 4 8])
 
 
 
-figure('Name','Estimation error of the MoI');
+figure('Name','Estimation error of the MOI');
 subplot(3,1,1);
 plot(platform1.t(2:end),real_theta_array_platform1(1,2:end)-theta_array_platform1(1,2:end),"LineWidth",2);
 grid on;
@@ -285,7 +341,7 @@ axis([-inf inf -1 1])
 
 
 %PoI 
-figure('Name','Estimation of the PoI');
+figure('Name','Estimation of the POI');
 
 subplot(3,1,1);
 plot(platform1.t(2:end),real_theta_array_platform1(4,2:end),'--',"LineWidth",2);
@@ -294,7 +350,7 @@ hold on;
 plot(platform1.t(2:end),theta_array_platform1(4,2:end),"LineWidth",2);
 ylabel(' $J_{xy}[kgm^2]$','interpreter','latex','FontSize',font);
 legend('$J_{xy}$','$J_{xy}estimate$','interpreter','latex','FontSize',font);
-title('$Estimation\ of\ the\ PoI$','interpreter','latex', 'FontSize', font);
+title('$Estimation\ of\ the\ POI$','interpreter','latex', 'FontSize', font);
 axis([-inf inf -0.1 0.1])
 
 
@@ -325,7 +381,7 @@ axis([-inf inf -0.1 0.1])
 
 
 
-figure('Name','Estimation error of the PoI');
+figure('Name','Estimation error of the POI');
 subplot(3,1,1);
 plot(platform1.t(2:end),real_theta_array_platform1(4,2:end)-theta_array_platform1(4,2:end),"LineWidth",2);
 grid on;
@@ -352,17 +408,17 @@ axis([-inf inf -0.1 0.1])
 
 
 %CoG
-figure('Name','Estimation of the CoG');
+figure('Name','Estimation of the COG');
 
 subplot(3,1,1);
 plot(platform1.t(2:end),real_theta_array_platform1(7,2:end),'--',"LineWidth",2);
 grid on;
 hold on;
 plot(platform1.t(2:end),theta_array_platform1(7,2:end),"LineWidth",2);
-ylabel(' $CoG_{x}[m]$','interpreter','latex','FontSize',font);
-legend('$CoG_{x}$','$CoG_{x}estimate$','interpreter','latex','FontSize',font);
-title('$Estimation\ of\ the\ CoG$','interpreter','latex', 'FontSize', font);
-axis([-inf inf -0.01 0.01])
+ylabel(' $COG_{x}[m]$','interpreter','latex','FontSize',font);
+legend('$COG_{x}$','$COG_{x}estimate$','interpreter','latex','FontSize',font);
+title('$Estimation\ of\ the\ COG$','interpreter','latex', 'FontSize', font);
+axis([-inf inf -0.005 0.0005])
 
 
 subplot(3,1,2);
@@ -370,43 +426,43 @@ plot(platform1.t(2:end),real_theta_array_platform1(8,2:end),'--',"LineWidth",2);
 grid on;
 hold on;
 plot(platform1.t(2:end),theta_array_platform1(8,2:end),"LineWidth",2);
-ylabel(' $CoG_{y}[m]$','interpreter','latex','FontSize',font);
-legend('$CoG_{y}$','$CoG_{y}estimate$','interpreter','latex','FontSize',font);
-axis([-inf inf -0.01 0.01])
+ylabel(' $COG_{y}[m]$','interpreter','latex','FontSize',font);
+legend('$COG_{y}$','$COG_{y}estimate$','interpreter','latex','FontSize',font);
+axis([-inf inf -0.005 0.0005])
 
 subplot(3,1,3);
 plot(platform1.t(2:end),real_theta_array_platform1(9,2:end),'--',"LineWidth",2);
 grid on;
 hold on;
 plot(platform1.t(2:end),theta_array_platform1(9,2:end),"LineWidth",2);
-ylabel('$CoG_{z}[m]$','interpreter','latex','FontSize',font);
+ylabel('$COG_{z}[m]$','interpreter','latex','FontSize',font);
 xlabel(' $t[s]$','interpreter','latex','FontSize',24);
-legend('$CoG_{z}$','$CoG_{z}estimate$','interpreter','latex','FontSize',font);
-axis([-inf inf -0.01 0.01])
+legend('$COG_{z}$','$COG_{z}estimate$','interpreter','latex','FontSize',font);
+axis([-inf inf -0.005 0.0005])
 
 
 
 
 
 
-figure('Name','Estimation error of the CoG');
+figure('Name','Estimation error of the COG');
 subplot(3,1,1);
 plot(platform1.t(2:end),real_theta_array_platform1(7,2:end)-theta_array_platform1(7,2:end),"LineWidth",2);
 grid on;
-ylabel(' $\tilde{\theta}_{CoG,x}[m]$','interpreter','latex','FontSize',font);
-title('$Estimation\ error\ of\ the\ CoG$','interpreter','latex', 'FontSize', font);
+ylabel(' $\tilde{\theta}_{COG,x}[m]$','interpreter','latex','FontSize',font);
+title('$Estimation\ error\ of\ the\ COG$','interpreter','latex', 'FontSize', font);
 axis([-inf inf -0.01 0.01])
 
 subplot(3,1,2);
 plot(platform1.t(2:end),real_theta_array_platform1(8,2:end)-theta_array_platform1(8,2:end),"LineWidth",2);
 grid on;
-ylabel(' $\tilde{\theta}_{CoG,y}[m]$','interpreter','latex','FontSize',font);
+ylabel(' $\tilde{\theta}_{COG,y}[m]$','interpreter','latex','FontSize',font);
 axis([-inf inf -0.01 0.01])
 
 subplot(3,1,3);
 plot(platform1.t(2:end),real_theta_array_platform1(9,2:end)-theta_array_platform1(9,2:end),"LineWidth",2);
 grid on;
-ylabel(' $\tilde{\theta}_{CoG,z}[m]$','interpreter','latex','FontSize',font);
+ylabel(' $\tilde{\theta}_{COG,z}[m]$','interpreter','latex','FontSize',font);
 xlabel(' $t[s]$','interpreter','latex','FontSize',24);
 axis([-inf inf -0.01 0.01])
 

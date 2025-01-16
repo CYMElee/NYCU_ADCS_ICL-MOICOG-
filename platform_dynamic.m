@@ -40,7 +40,7 @@ classdef platform_dynamic
 
         Omega_dot
         Omega
-        J_RW = 2.824e-3;
+        J_RW = 2.9915e-3;
 
         %Platform dynamic constraint
         Attitude_upper_limit
@@ -49,6 +49,9 @@ classdef platform_dynamic
         omega_lower_limit
         omega_dot_upper_limit
         omega_dot_lower_limit
+
+        Nominal_speed
+        Nominal_torque
 
 
 
