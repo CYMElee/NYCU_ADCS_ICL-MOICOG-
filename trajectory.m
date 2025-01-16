@@ -9,10 +9,10 @@ classdef trajectory
 %            % xd, vd, b1d
            % xd
            % first term
-           frequency_x = 0.25;
-           frequency_y = 0.15;
-           frequency_z = 0.03;
-           amplitude_x = 0.3;
+           frequency_x = 0.15;
+           frequency_y = 0.35;
+           frequency_z = 0.25;
+           amplitude_x = 0.4;
            amplitude_y = 0.3;
            amplitude_z = 0.5;
            %frequency_x_nd = 0.01;

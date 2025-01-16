@@ -13,10 +13,10 @@ platform1.sim_t = sim_t;      %whole time
 platform1.t = 0:dt:sim_t;     %every time stamps
 
 
-platform1.m = 34.55;
-platform1.J = [2.09, 0, 0;...
-               0, 2.02, 0;...
-               0, 0, 3.30];
+platform1.m = 69.85;
+platform1.J = [6.77, 0, 0;...
+               0, 6.76, 0;...
+               0, 0, 6.70];
 
 
 %use to trans motor torque to platform 
@@ -262,7 +262,7 @@ traj = trajectory;
    
        
         
- platform1.pc_2_mc = [0;0;-0.04]; % distance between center of rotation and center of mass
+ platform1.pc_2_mc = [0.00001;0.00001;-0.00001]; % distance between center of rotation and center of mass
 
 
    
