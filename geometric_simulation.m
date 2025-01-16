@@ -13,10 +13,10 @@ platform1.sim_t = sim_t;      %whole time
 platform1.t = 0:dt:sim_t;     %every time stamps
 
 
-platform1.m = 34.55;
-platform1.J = [2.09, 0, 0;...
-               0, 2.02, 0;...
-               0, 0, 3.30];
+platform1.m = 69.85;
+platform1.J = [6.77, 0, 0;...
+               0, 6.76, 0;...
+               0, 0, 6.70];
 
 
 %use to trans motor torque to platform 
@@ -262,7 +262,7 @@ traj = trajectory;
    
        
         
- platform1.pc_2_mc = [0;0;-0.04]; % distance between center of rotation and center of mass
+ platform1.pc_2_mc = [0.00001;0.00001;-0.00001]; % distance between center of rotation and center of mass
 
 
    
@@ -275,11 +275,10 @@ controller_type = "ICL_RW";   %"origin","EMK","adaptive","ICL"
 
 control_output_platform1  = zeros(3,1);
 control_platform1.theta = 0.9*[platform1.J(1,1);platform1.J(2,2);platform1.J(3,3);platform1.J(1,2);platform1.J(1,3);platform1.J(2,3);platform1.pc_2_mc(1);platform1.pc_2_mc(2);platform1.pc_2_mc(3)];
-
-%% Create the Nominal speed & Nominal torque array
-platform1.Nominal_speed = [592.71 * ones(1, length(platform1.t)); -592.71 * ones(1, length(platform1.t))];
-platform1.Nominal_torque = [0.470 * ones(1, length(platform1.t)); -0.470 * ones(1,length(platform1.t))];
-
+%control_platform1.theta = 0.9*[platform1.pc_2_mc(1);platform1.pc_2_mc(2);platform1.pc_2_mc(3);platform1.J(1,1);platform1.J(2,2);platform1.J(3,3);platform1.J(1,2);platform1.J(1,3);platform1.J(2,3)];
+%control_platform1.theta(7)=0;
+%control_platform1.theta(8)=0;
+%control_platform1.theta(9)=-0.002;
 
 for i = 2:length(platform1.t)
     disp(i)
@@ -506,9 +505,3 @@ for i = 2:length(platform1.t)
     
     
 end
-
-
-
-
-
-
