@@ -10,11 +10,11 @@ classdef trajectory
            % xd
            % first term
            frequency_x = 0.15;
-           frequency_y = 0.35;
-           frequency_z = 0.25;
-           amplitude_x = 0.4;
+           frequency_y = 0.20;
+           frequency_z = 0.07;
+           amplitude_x = 0.3;
            amplitude_y = 0.3;
-           amplitude_z = 0.5;
+           amplitude_z = 0.4;
            %frequency_x_nd = 0.01;
            %frequency_y_nd = 0.03;
 
@@ -23,30 +23,26 @@ classdef trajectory
 
 
 
-          % if t>100
-          % frequency_x = 0.15;
-           %frequency_y = 0.3;
-           %frequency_z = 0.03;
-           %frequency_x_nd = 0;
-           %frequency_y_nd = 0;
+           if t>40
+           frequency_x = 0.25;
+           frequency_y = 0.05;
+           frequency_z = 0.10;
+  
 
-          % amplitude_x = 0.2;
-          % amplitude_y = 0.2;
-           %amplitude_z = 0.1;
-           %end
+           amplitude_x = 0.4;
+           amplitude_y = 0.4;
+           amplitude_z = 0.3;
+           end
 
 
-           %if t>100
-           %frequency_x = 0.1;
-           %frequency_y = 0.15;
-           %frequency_z = 0.03;
-           %frequency_x_nd = 0;
-          % frequency_y_nd = 0;
-
-           %amplitude_x = 0.2;
-           %amplitude_y = 0.2;
-          % amplitude_z = 0.1;
-         %  end
+           if t>80
+           frequency_x = 0.15;
+           frequency_y = 0.04;
+           frequency_z = 0.07;
+           amplitude_x = 0.3;
+           amplitude_y = 0.3;
+           amplitude_z = 0.4;
+           end
 
 
   
