@@ -9,49 +9,131 @@ classdef trajectory
 %            % xd, vd, b1d
            % xd
            % first term
-           frequency_x = 0.15;
-           frequency_y = 0.20;
-           frequency_z = 0.07;
-           amplitude_x = 0.3;
-           amplitude_y = 0.3;
-           amplitude_z = 0.4;
+           frequency_x = 0.04;
+           frequency_y = 0.09;
+           frequency_z = 0.05;
+           amplitude_x = 0.4;
+           amplitude_y = 0.4;
+           amplitude_z = 0.5;
            %frequency_x_nd = 0.01;
            %frequency_y_nd = 0.03;
-
+           amplitude_x_nd =0.0;
+           amplitude_y_nd =0.0;
+    
            
 
 
 
 
-           if t>40
-           frequency_x = 0.25;
-           frequency_y = 0.05;
-           frequency_z = 0.10;
-  
-
+           if t>20
+           frequency_x = 0.03;
+           frequency_y = 0.2;
+           frequency_z = 0.04;
            amplitude_x = 0.4;
            amplitude_y = 0.4;
-           amplitude_z = 0.3;
+           amplitude_z = 0.5;
+           %frequency_x_nd = 0.01;
+           %frequency_y_nd = 0.03;
+           amplitude_x_nd =0.0;
+           amplitude_y_nd =0.0;
            end
 
+           if t>40
+           frequency_x = 0.06;
+           frequency_y = 0.04;
+           frequency_z = 0.05;
+           amplitude_x = 0.4;
+           amplitude_y = 0.4;
+           amplitude_z = 0.5;
+           %frequency_x_nd = 0.01;
+           %frequency_y_nd = 0.03;
+           amplitude_x_nd =0;
+           amplitude_y_nd =0;
+           end
+
+           if t>60
+           frequency_x = 0.2;
+           frequency_y = 0.07;
+           frequency_z = 0.09;
+           amplitude_x = 0.4;
+           amplitude_y = 0.4;
+           amplitude_z = 0.5;
+           %frequency_x_nd = 0.01;
+           %frequency_y_nd = 0.03;
+           amplitude_x_nd =0.0;
+           amplitude_y_nd =0.0;
+           end
 
            if t>80
-           frequency_x = 0.15;
+           frequency_x = 0.06;
            frequency_y = 0.04;
            frequency_z = 0.07;
-           amplitude_x = 0.3;
-           amplitude_y = 0.3;
-           amplitude_z = 0.4;
+           amplitude_x = 0.4;
+           amplitude_y = 0.4;
+           amplitude_z = 0.5;
+           %frequency_x_nd = 0.01;
+           %frequency_y_nd = 0.03;
+           amplitude_x_nd =0;
+           amplitude_y_nd =0;
            end
 
 
-  
+           if t>100
+           frequency_x = 0.04;
+           frequency_y = 0.2;
+           frequency_z = 0.05;
+           amplitude_x = 0.4;
+           amplitude_y = 0.4;
+           amplitude_z = 0.5;
+           %frequency_x_nd = 0.01;
+           %frequency_y_nd = 0.03;
+           amplitude_x_nd =0.0;
+           amplitude_y_nd =0.0;
+           end
+
+           if t>120
+           frequency_x = 0.2;
+           frequency_y = 0.024;
+           frequency_z = 0.03;
+           amplitude_x = 0.4;
+           amplitude_y = 0.4;
+           amplitude_z = 0.5;
+           %frequency_x_nd = 0.01;
+           %frequency_y_nd = 0.03;
+           amplitude_x_nd =0;
+           amplitude_y_nd =0;
+           end
         
+           if t>140
+           frequency_x = 0.022;
+           frequency_y = 0.2;
+           frequency_z = 0.03;
+           amplitude_x = 0.4;
+           amplitude_y = 0.4;
+           amplitude_z = 0.5;
+           %frequency_x_nd = 0.01;
+           %frequency_y_nd = 0.03;
+           amplitude_x_nd =0.0;
+           amplitude_y_nd =0.0;
+           end
+
+           if t>160
+           frequency_x = 0.2;
+           frequency_y = 0.15;
+           frequency_z = 0.03;
+           amplitude_x = 0.4;
+           amplitude_y = 0.4;
+           amplitude_z = 0.5;
+           %frequency_x_nd = 0.01;
+           %frequency_y_nd = 0.03;
+           amplitude_x_nd =0;
+           amplitude_y_nd =0;
+           end
+  
 
 
-
-           desired_attitude  =[ amplitude_x*(cos(frequency_x*t))...
-                    ,amplitude_y*(sin(frequency_y*t)),...
+           desired_attitude  =[ amplitude_x*(cos(frequency_x*t))+amplitude_x_nd...
+                    ,amplitude_y*(sin(frequency_y*t))+amplitude_y_nd,...
                     amplitude_z*(-sin(frequency_z*t))]';
 
      

@@ -1,8 +1,8 @@
 classdef controller
     properties
   
-         kR = diag([90,90,90]);
-         kW = diag([8.5,8.5,8.5]);
+         kR = diag([3,3,3]);
+         kW = diag([1.5,1.5,1.5]);
          
          M = [0;0;0];
          M_RW =[0;0;0];
@@ -10,9 +10,9 @@ classdef controller
 
          theta = [0;0;0;0;0;0;0;0;0];
 
-       gamma =  diag([0.00000000000000001,0.00000000000000001,0.00000000000000001,0.00000000000000001,0.00000000000000001,0.00000000000000001,0.000000000000000001,0.000000000000000001,0.000000000000000001]);
+       gamma =  diag([0.00000000000000001,0.00000000000000001,0.00000000000000001,0.00000000000000001,0.00000000000000001,0.00000000000000001,0.000000000000000000001,0.000000000000000000001,0.000000000000000000000000000001]);
 
-         c2 = 1.5
+         c2 = 2.5
         %% ICL
         Y_icl_last = zeros(3,9,100);
         M_icl_last = zeros(3,100);
@@ -22,9 +22,9 @@ classdef controller
         
         last_R = [1 0 0;0 1 0;0 0 1]
 
-       k_icl =  diag([5000000000000000000,5000000000000000000,5000000000000000000,5000000000000000000,5000000000000000000,5000000000000000000,5000000000000,5000000000000,999000000000000]);
+       k_icl =  diag([5000000000000000000,5000000000000000000,5000000000000000000,5000000000000000000,5000000000000000000,5000000000000000000,5000000000000000,5000000000000000,999000000000000000000000000]);
 
-        N = 90;      
+        N = 100;      
         
         theta_hat_dot= [0;0;0;0;0;0;0;0;0];
         
@@ -51,7 +51,7 @@ classdef controller
 
                 % platform 
                 %using for integral on [0 delta t] interval
-                integral_num = 100;
+                integral_num =100;
                 
                 R_now = reshape(platform.R(:,iteration-1), 3, 3);
                 W_now = platform.W(:,iteration-1);
@@ -388,7 +388,7 @@ classdef controller
                     obj.M = -obj.kR * eR - obj.kW*eW + Y*obj.theta+RW_Feedback; 
 
                     Omega_dot_now = -(HW_inv/J_RW)*[obj.M;0]; %renwe the R.W angular accelerate
-                    
+                    %Omega_dot_now =[0;0;0;0];
                     for O=1:4  %4 R.W Torque
                         if Omega_dot_now(O)>0 %If Torque>0
                             if Omega_now(O)>= 592.71 %If the R.W speed reach +max

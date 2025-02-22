@@ -5,7 +5,7 @@ addpath('geometry-toolbox')
 %% set drone parameters
 % simulation time
 dt = 1/1000;
-sim_t =120;
+sim_t =180;
 
 platform1 = platform_dynamic;
 platform1.dt = dt;            %delta t
@@ -14,9 +14,9 @@ platform1.t = 0:dt:sim_t;     %every time stamps
 
 
 platform1.m = 51.271;
-platform1.J = [2.306, 0, 0;...
-               0, 2.648, 0.00;...
-               0, 0.00, 3.823];
+platform1.J = [2.259, 0, 0;...
+               0, 2.843, 0.00;...
+               0, 0.00, 3.049];
 
 %use to trans motor torque to platform 
 
@@ -261,7 +261,7 @@ traj = trajectory;
    
        
         
- platform1.pc_2_mc = [0.000;0.000160;-0.000182]; % distance between center of rotation and center of mass
+ platform1.pc_2_mc = [0.00001;0.00001;-0.00001]; % distance between center of rotation and center of mass
 
 
    
@@ -273,7 +273,7 @@ traj_type = "twist";   %"twist","exp"
 controller_type = "ICL_RW";   %"origin","EMK","adaptive","ICL"
 
 control_output_platform1  = zeros(3,1);
-control_platform1.theta = 0.9*[platform1.J(1,1);platform1.J(2,2);platform1.J(3,3);platform1.J(1,2);platform1.J(1,3);platform1.J(2,3);platform1.pc_2_mc(1);platform1.pc_2_mc(2);platform1.pc_2_mc(3)];
+control_platform1.theta = 0.9*[platform1.J(1,1);platform1.J(2,2);platform1.J(3,3);platform1.J(1,2);platform1.J(1,3);platform1.J(2,3);0;0;0];
 
 %% Create the Nominal speed & Nominal torque array
 platform1.Nominal_speed = [592.71 * ones(1, length(platform1.t)); -592.71 * ones(1, length(platform1.t))];
@@ -441,7 +441,7 @@ for i = 2:length(platform1.t)
 
 
 
-    
+    %real_theta_array_platform1(:,i) = [platform1.J(1,1),platform1.J(2,2),platform1.J(3,3),platform1.J(1,2),platform1.J(1,3),platform1.J(2,3),0,0,0];
     real_theta_array_platform1(:,i) = [platform1.J(1,1),platform1.J(2,2),platform1.J(3,3),platform1.J(1,2),platform1.J(1,3),platform1.J(2,3),platform1.pc_2_mc(1),platform1.pc_2_mc(2),platform1.pc_2_mc(3)];
     %real_theta_array_platform1(:,i) = [platform1.pc_2_mc(1),platform1.pc_2_mc(2),platform1.pc_2_mc(3),platform1.J(1,1),platform1.J(2,2),platform1.J(3,3),platform1.J(1,2),platform1.J(1,3),platform1.J(2,3)];
     theta_hat_dot_array_platform1(:,i) =control_platform1.theta_hat_dot;
