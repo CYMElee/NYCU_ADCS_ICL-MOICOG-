@@ -2,7 +2,7 @@ classdef controller
     properties
   
          kR = diag([3,3,3]);
-         kW = diag([1.5,1.5,1.5]);
+         kW = diag([1,1,1]);
          
          M = [0;0;0];
          M_RW =[0;0;0];
