@@ -53,6 +53,11 @@ classdef platform_dynamic
         Nominal_speed
         Nominal_torque
 
+        %Semaphore using to choice the trajectory is generate from
+        %trajectory function or SVD trajectory
+
+        semaphore
+
 
 
 

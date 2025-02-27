@@ -1,11 +1,22 @@
 clear;
 close all;
-
+addpath(pwd)
 addpath('geometry-toolbox')
+jacobian
 %% set drone parameters
 % simulation time
 dt = 1/1000;
 sim_t =120;
+
+% Define the jacobian matrix
+%J_values = [0.5, 0.6, 0.7, 1.5, 2.5, 3.5, 0.1, 0.2, 0.3];
+%m_val=51.7;
+%g_val = 9.8;
+%J_sub = subs(J, [vars, m, g], [values, m_val, g_val]);
+%J_num = double(J_sub);
+
+
+
 
 platform1 = platform_dynamic;
 platform1.dt = dt;            %delta t
@@ -29,6 +40,16 @@ platform1.allocation_matrix_HW =[    1/2,     -1/2,      -1/2,     1/2;...
                                     1           -1          1           -1];
 
 platform1.allocation_matrix_HW_inv =  inv(platform1.allocation_matrix_HW);  
+
+% Define the jacobian matrix
+m_val = platform1.m;
+g_val = 9.81;
+platform1.semaphore = 0;
+
+
+
+
+
                              
 %% create states array
 zero_for_compare = zeros(1,length(platform1.t));
@@ -284,11 +305,30 @@ for i = 2:length(platform1.t)
     disp(i)
     t_now = platform1.t(i);
     platform1.Euler_Matrix = platform1.get_euler_matrix(i);
+
+    if platform1.semaphore == 0
     desired = traj.traj_generate(t_now,i,traj_type,platform1);
     platform1.Rd_Euler(:,i)=desired(:,1);
+
+    else
+     
+    end
+
     % calculate control force
     [control_output_platform1, platform1.eR(:, i), platform1.eW(:, i),control_platform1,platform1.y_sys_icl_singular_value(:,:,i),platform1.y_sys_icl_left_singular_value(:,:,i),platform1.y_sys_icl_right_singular_value(:,:,i),platform1.icl_term(:,i),platform1.Omega_dot(:,i),platform1.Omega(:,i)] = control_platform1.geometric_tracking_ctrl(i,platform1,desired,controller_type);
     
+    %calculate the next desire trajectory base on the Singular velue
+    U=platform1.y_sys_icl_left_singular_value(:,:,i);
+    S=platform1.y_sys_icl_singular_value(:,:,i);
+    V=platform1.y_sys_icl_right_singular_value(:,:,i);
+
+    % If the time over 20sec,enable the SVD trajectory
+     %if i >= 20000
+
+  %  [Rd_next,Wd_next,Wd_dot_next] = singular_value_trajectory(U,S,V);
+  %  platform1.semaphore = 1;
+
+  %  end
     %store the y_sys_icl to y_sys_icl use to plot
     y_sys_icl_11(i) = platform1.y_sys_icl_singular_value(1,1,i);
     y_sys_icl_12(i) = platform1.y_sys_icl_singular_value(1,2,i);
@@ -449,13 +489,6 @@ for i = 2:length(platform1.t)
     theta_array_platform1(:,i) = control_platform1.theta;
 
 
-
-
-
-
-
-
-  
     real_control_torque_platform1 = [control_output_platform1(1);control_output_platform1(2);control_output_platform1(3)];
 
   
@@ -474,9 +507,7 @@ for i = 2:length(platform1.t)
 
 
     T_ext=cross(platform1.pc_2_mc,platform1.m*platform1.Euler_Matrix*[0;0;-9.81]);
-    %disp(T_ext);
-  %  disp("control input");
-   % disp(real_control_torque_platform1);
+
 
 
     [T_platform1, X_new_platform1] = ode45(@(t, x) platform1.dynamics( x, real_control_torque_platform1,T_ext), [0, dt], X0_platform1);
