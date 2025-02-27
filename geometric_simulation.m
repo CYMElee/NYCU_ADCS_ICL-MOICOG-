@@ -8,12 +8,6 @@ jacobian
 dt = 1/1000;
 sim_t =120;
 
-% Define the jacobian matrix
-%J_values = [0.5, 0.6, 0.7, 1.5, 2.5, 3.5, 0.1, 0.2, 0.3];
-%m_val=51.7;
-%g_val = 9.8;
-%J_sub = subs(J, [vars, m, g], [values, m_val, g_val]);
-%J_num = double(J_sub);
 
 
 
@@ -309,9 +303,8 @@ for i = 2:length(platform1.t)
     if platform1.semaphore == 0
     desired = traj.traj_generate(t_now,i,traj_type,platform1);
     platform1.Rd_Euler(:,i)=desired(:,1);
-
     else
-     
+    desired = [Rd_next,Wd_next,Wd_dot_next];
     end
 
     % calculate control force
@@ -323,12 +316,16 @@ for i = 2:length(platform1.t)
     V=platform1.y_sys_icl_right_singular_value(:,:,i);
 
     % If the time over 20sec,enable the SVD trajectory
-     %if i >= 20000
+     if i >= 20000                   
+     J_values = [platform1.R_Euler(1), platform1.R_Euler(2), platform1.R_Euler(3), platform1.W(1),  platform1.W(2), platform1.W(3), platform1.W_dot(1), platform1.W_dot(2),platform1.W_dot(3)];
+     m_val=51.7;
+     g_val = 9.8;
+     J_sub = subs(J, [vars, m, g], [J_values, m_val, g_val]);
+     J_num = double(J_sub);
+     [Rd_next,Wd_next,Wd_dot_next] = singular_value_trajectory(U,S,V,J_num);
+     platform1.semaphore = 1;
 
-  %  [Rd_next,Wd_next,Wd_dot_next] = singular_value_trajectory(U,S,V);
-  %  platform1.semaphore = 1;
-
-  %  end
+     end
     %store the y_sys_icl to y_sys_icl use to plot
     y_sys_icl_11(i) = platform1.y_sys_icl_singular_value(1,1,i);
     y_sys_icl_12(i) = platform1.y_sys_icl_singular_value(1,2,i);
@@ -515,7 +512,7 @@ for i = 2:length(platform1.t)
     dX_platform1 = platform1.dynamics(X0_platform1 , real_control_torque_platform1,T_ext);
     
     
-    % Save the states 
+    % Save the states S
 
     platform1.R(:, i) = X_new_platform1(end, 1:9);
     platform1.W(:, i) = X_new_platform1(end, 10:12);
