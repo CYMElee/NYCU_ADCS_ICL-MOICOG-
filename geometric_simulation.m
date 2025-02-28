@@ -5,7 +5,7 @@ addpath('geometry-toolbox')
 %% set drone parameters
 % simulation time
 dt = 1/1000;
-sim_t =120;
+sim_t =80;
 
 platform1 = platform_dynamic;
 platform1.dt = dt;            %delta t
@@ -261,7 +261,7 @@ traj = trajectory;
    
        
         
- platform1.pc_2_mc = [0.00001;0.00001;-0.00001]; % distance between center of rotation and center of mass
+ platform1.pc_2_mc = [0;-0.000051;-0.000068]; % distance between center of rotation and center of mass
 
 
    

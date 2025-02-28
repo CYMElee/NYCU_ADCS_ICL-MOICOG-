@@ -1,8 +1,8 @@
 classdef controller
     properties
   
-         kR = diag([3,3,3]);
-         kW = diag([1,1,1]);
+         kR = diag([90,90,90]);
+         kW = diag([8.5,8.5,8.5]);
          
          M = [0;0;0];
          M_RW =[0;0;0];
