@@ -57,7 +57,7 @@ classdef controller
                 W_now = platform.W(:,iteration-1);
                 
 
-                R_d = eul2rotm(desired(:,1)',"XYZ");
+                R_d = eul2rotm(desired(:,1)',"ZYX");
 
                 W_d = desired(:,2);
                 W_d_dot = desired(:,3);

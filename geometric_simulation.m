@@ -261,7 +261,7 @@ traj = trajectory;
    
        
         
- platform1.pc_2_mc = [0;-0.000051;-0.000068]; % distance between center of rotation and center of mass
+ platform1.pc_2_mc = [0.00001;0.00001;-0.00001]; % distance between center of rotation and center of mass
 
 
    
@@ -490,7 +490,7 @@ for i = 2:length(platform1.t)
     platform1.W(:, i) = X_new_platform1(end, 10:12);
     platform1.W_dot(:, i) = dX_platform1(10:12)';
 
-    platform1.R_Euler(:,i)= rotm2eul(reshape(platform1.R(:, i),3,3),"XYZ");
+    platform1.R_Euler(:,i)= rotm2eul(reshape(platform1.R(:, i),3,3),"ZYX");
 
 
     % Save the Platform constraint
