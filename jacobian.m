@@ -22,4 +22,7 @@ y_icl_sys_vec=Y_icl_sys(:);
 
 vars=[theta1 theta2 theta3 omega1 omega2 omega3 omega_dot1 omega_dot2 omega_dot3];
 J = jacobian(y_icl_sys_vec, vars);
+% get the psudo inverse of J
+J_inv = inv(J'*J)*J';
 disp(J);
+disp(J_inv);

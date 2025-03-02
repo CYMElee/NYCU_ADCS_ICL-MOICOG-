@@ -14,8 +14,8 @@ classdef controller
 
          c2 = 2.5
         %% ICL
-        Y_icl_last = zeros(3,9,100);
-        M_icl_last = zeros(3,100);
+        Y_icl_last = zeros(3,9,20);
+        M_icl_last = zeros(3,20);
        
         last_W = [0;0;0];
 
@@ -24,7 +24,7 @@ classdef controller
 
        k_icl =  diag([5000000000000000000,5000000000000000000,5000000000000000000,5000000000000000000,5000000000000000000,5000000000000000000,5000000000000000,5000000000000000,999000000000000000000000000]);
 
-        N = 100;      
+        N = 20;      
         
         theta_hat_dot= [0;0;0;0;0;0;0;0;0];
         
@@ -51,7 +51,7 @@ classdef controller
 
                 % platform 
                 %using for integral on [0 delta t] interval
-                integral_num =100;
+                integral_num =20;
                 
                 R_now = reshape(platform.R(:,iteration-1), 3, 3);
                 W_now = platform.W(:,iteration-1);

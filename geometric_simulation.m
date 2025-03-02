@@ -6,7 +6,7 @@ jacobian
 %% set drone parameters
 % simulation time
 dt = 1/1000;
-sim_t =120;
+sim_t =30;
 
 
 
@@ -295,6 +295,15 @@ platform1.Nominal_speed = [592.71 * ones(1, length(platform1.t)); -592.71 * ones
 platform1.Nominal_torque = [0.470 * ones(1, length(platform1.t)); -0.470 * ones(1,length(platform1.t))];
 
 
+
+
+%% initial the [Rd_next,Wd_next,Wd_dot_next]
+
+Rd_next=[0,0,0]';
+Wd_next=[0,0,0]';
+Wd_dot_next=[0,0,0]';
+
+
 for i = 2:length(platform1.t)
     disp(i)
     t_now = platform1.t(i);
@@ -310,22 +319,7 @@ for i = 2:length(platform1.t)
     % calculate control force
     [control_output_platform1, platform1.eR(:, i), platform1.eW(:, i),control_platform1,platform1.y_sys_icl_singular_value(:,:,i),platform1.y_sys_icl_left_singular_value(:,:,i),platform1.y_sys_icl_right_singular_value(:,:,i),platform1.icl_term(:,i),platform1.Omega_dot(:,i),platform1.Omega(:,i)] = control_platform1.geometric_tracking_ctrl(i,platform1,desired,controller_type);
     
-    %calculate the next desire trajectory base on the Singular velue
-    U=platform1.y_sys_icl_left_singular_value(:,:,i);
-    S=platform1.y_sys_icl_singular_value(:,:,i);
-    V=platform1.y_sys_icl_right_singular_value(:,:,i);
 
-    % If the time over 20sec,enable the SVD trajectory
-     if i >= 20000                   
-     J_values = [platform1.R_Euler(1), platform1.R_Euler(2), platform1.R_Euler(3), platform1.W(1),  platform1.W(2), platform1.W(3), platform1.W_dot(1), platform1.W_dot(2),platform1.W_dot(3)];
-     m_val=51.7;
-     g_val = 9.8;
-     J_sub = subs(J, [vars, m, g], [J_values, m_val, g_val]);
-     J_num = double(J_sub);
-     [Rd_next,Wd_next,Wd_dot_next] = singular_value_trajectory(U,S,V,J_num);
-     platform1.semaphore = 1;
-
-     end
     %store the y_sys_icl to y_sys_icl use to plot
     y_sys_icl_11(i) = platform1.y_sys_icl_singular_value(1,1,i);
     y_sys_icl_12(i) = platform1.y_sys_icl_singular_value(1,2,i);
@@ -361,7 +355,7 @@ for i = 2:length(platform1.t)
 
 
    
-    y_sys_icl_rank(i)=rank(platform1.y_sys_icl_singular_value(:,:,i));
+  %  y_sys_icl_rank(i)=rank(platform1.y_sys_icl_singular_value(:,:,i));
     %store the y_sys_left_icl to y_sys_icl_left use to plot
     y_sys_icl_left_11(i) =  platform1.y_sys_icl_left_singular_value(1,1,i);
     y_sys_icl_left_12(i) =  platform1.y_sys_icl_left_singular_value(1,2,i);
@@ -514,11 +508,34 @@ for i = 2:length(platform1.t)
     
     % Save the states S
 
-    platform1.R(:, i) = X_new_platform1(end, 1:9);
+    platform1.R(:,i) = X_new_platform1(end, 1:9);
     platform1.W(:, i) = X_new_platform1(end, 10:12);
     platform1.W_dot(:, i) = dX_platform1(10:12)';
 
     platform1.R_Euler(:,i)= rotm2eul(reshape(platform1.R(:, i),3,3),"XYZ");
+
+
+
+    %calculate the next desire trajectory base on the Singular velue
+    U=platform1.y_sys_icl_left_singular_value(:,:,i);
+    S=platform1.y_sys_icl_singular_value(:,:,i);
+    V=platform1.y_sys_icl_right_singular_value(:,:,i);
+
+    % If the time over 20sec,enable the SVD trajectory
+    if i >= 10000                   
+     J_values = [platform1.R_Euler(1,i), platform1.R_Euler(2,i), platform1.R_Euler(3,i), platform1.W(1,i),  platform1.W(2,i), platform1.W(3,i), platform1.W_dot(1,i), platform1.W_dot(2,i),platform1.W_dot(3,i)];
+     m_val=51.7;
+     g_val = 9.8;
+     J_sub = subs(J_inv, [vars, m, g], [J_values, m_val, g_val]);
+     J_num = double(J_sub);
+     [Rd_next,Wd_next,Wd_dot_next] = singular_value_trajectory(U,S,V,J_num,reshape(platform1.R(:, i),3,3),platform1.W(:, i),platform1.W_dot(:,i));
+     platform1.semaphore = 1;
+    end
+
+
+
+
+
 
 
     % Save the Platform constraint

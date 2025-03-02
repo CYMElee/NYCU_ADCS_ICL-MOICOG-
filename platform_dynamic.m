@@ -87,6 +87,16 @@ classdef platform_dynamic
         
         end
 
+
+        function Euler_Matrix_inv = get_euler_matrix_inv(obj,iteration)
+            R_now = reshape(obj.R(:,iteration-1), 3, 3);
+            R_now_euler = rotm2eul(R_now,"XYZ");
+            Euler_Matrix_inv = [1,0,-sin(R_now_euler(2));...
+                    0,cos(R_now_euler(1)),sin(R_now_euler(1))*cos(R_now_euler(2));...
+                    0,-sin(R_now_euler(1)),cos(R_now_euler(1))*cos(R_now_euler(2))];
+        
+        end
+
     end
 end
 
