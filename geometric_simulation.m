@@ -2,11 +2,11 @@ clear;
 close all;
 addpath(pwd)
 addpath('geometry-toolbox')
-jacobian
+%jacobian
 %% set drone parameters
 % simulation time
 dt = 1/1000;
-sim_t =30;
+sim_t =180;
 
 
 
@@ -19,9 +19,9 @@ platform1.t = 0:dt:sim_t;     %every time stamps
 
 
 platform1.m = 51.494;
-platform1.J = [2.319, 0, 0;...
-               0, 2.668, 0.00;...
-               0, 0.00, 3.841];
+platform1.J = [6.80, 0, 0;...
+               0, 6.84, 0.00;...
+               0, 0.00, 6.76];
 
 %use to trans motor torque to platform 
 
@@ -276,7 +276,7 @@ traj = trajectory;
    
        
         
- platform1.pc_2_mc = [0.00001;0.00001;-0.00001]; % distance between center of rotation and center of mass
+ platform1.pc_2_mc = [0;-0.000051;-0.000068]; % distance between center of rotation and center of mass
 
 
    
@@ -288,7 +288,7 @@ traj_type = "twist";   %"twist","exp"
 controller_type = "ICL_RW";   %"origin","EMK","adaptive","ICL"
 
 control_output_platform1  = zeros(3,1);
-control_platform1.theta = 0.9*[platform1.J(1,1);platform1.J(2,2);platform1.J(3,3);platform1.J(1,2);platform1.J(1,3);platform1.J(2,3);0;0;0];
+control_platform1.theta = 0.9*[platform1.J(1,1);platform1.J(2,2);platform1.J(3,3);platform1.J(1,2);platform1.J(1,3);platform1.J(2,3);platform1.pc_2_mc(1);platform1.pc_2_mc(2);platform1.pc_2_mc(3)];
 
 %% Create the Nominal speed & Nominal torque array
 platform1.Nominal_speed = [592.71 * ones(1, length(platform1.t)); -592.71 * ones(1, length(platform1.t))];
@@ -311,7 +311,7 @@ for i = 2:length(platform1.t)
 
     if platform1.semaphore == 0
     desired = traj.traj_generate(t_now,i,traj_type,platform1);
-    platform1.Rd_Euler(:,i)=desired(:,1);
+    platform1.Rd_Euler(:,i)=desired(:,1); % The desire euler angle order is "zyx" but we represent by "xyz" order
     else
     desired = [Rd_next,Wd_next,Wd_dot_next];
     end
@@ -355,7 +355,7 @@ for i = 2:length(platform1.t)
 
 
    
-  %  y_sys_icl_rank(i)=rank(platform1.y_sys_icl_singular_value(:,:,i));
+    y_sys_icl_rank(i)=rank(platform1.y_sys_icl_singular_value(:,:,i));
     %store the y_sys_left_icl to y_sys_icl_left use to plot
     y_sys_icl_left_11(i) =  platform1.y_sys_icl_left_singular_value(1,1,i);
     y_sys_icl_left_12(i) =  platform1.y_sys_icl_left_singular_value(1,2,i);
@@ -512,7 +512,7 @@ for i = 2:length(platform1.t)
     platform1.W(:, i) = X_new_platform1(end, 10:12);
     platform1.W_dot(:, i) = dX_platform1(10:12)';
 
-    platform1.R_Euler(:,i)= rotm2eul(reshape(platform1.R(:, i),3,3),"XYZ");
+    platform1.R_Euler(:,i)= rotm2eul(reshape(platform1.R(:, i),3,3),"ZYX");
 
 
 
@@ -522,13 +522,13 @@ for i = 2:length(platform1.t)
     V=platform1.y_sys_icl_right_singular_value(:,:,i);
 
     % If the time over 20sec,enable the SVD trajectory
-    if i >= 10000                   
+    if (i >= 888888888 )                 
      J_values = [platform1.R_Euler(1,i), platform1.R_Euler(2,i), platform1.R_Euler(3,i), platform1.W(1,i),  platform1.W(2,i), platform1.W(3,i), platform1.W_dot(1,i), platform1.W_dot(2,i),platform1.W_dot(3,i)];
      m_val=51.7;
      g_val = 9.8;
      J_sub = subs(J_inv, [vars, m, g], [J_values, m_val, g_val]);
      J_num = double(J_sub);
-     [Rd_next,Wd_next,Wd_dot_next] = singular_value_trajectory(U,S,V,J_num,reshape(platform1.R(:, i),3,3),platform1.W(:, i),platform1.W_dot(:,i));
+     [Rd_next,Wd_next,Wd_dot_next] = singular_value_trajectory(U,S,V,J_num,reshape(platform1.R(:, i),3,3),platform1.W(:, i),platform1.W_dot(:,i),platform1);
      platform1.semaphore = 1;
     end
 

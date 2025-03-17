@@ -89,7 +89,7 @@ axis([-inf inf -0.5 0.5]);
 %% Attitude
 figure('Name','Attitude result');
 subplot(3,2,1);
-plot(platform1.t(2:end),platform1.R_Euler(1,2:end),'--',"LineWidth",2);
+plot(platform1.t(2:end),platform1.R_Euler(3,2:end),'--',"LineWidth",2);
 grid on;
 hold on;
 plot(platform1.t(2:end),platform1.Rd_Euler(1,2:end),"LineWidth",2);
@@ -112,7 +112,7 @@ axis([-inf inf -1 1])
 
 
 subplot(3,2,5);
-plot(platform1.t(2:end),platform1.R_Euler(3,2:end),'--',"LineWidth",2);
+plot(platform1.t(2:end),platform1.R_Euler(1,2:end),'--',"LineWidth",2);
 grid on;
 hold on;
 plot(platform1.t(2:end),platform1.Rd_Euler(3,2:end),"LineWidth",2);

@@ -1,8 +1,8 @@
 classdef controller
     properties
   
-         kR = diag([3,3,3]);
-         kW = diag([1,1,1]);
+         kR = diag([90,90,90]);
+         kW = diag([8.5,8.5,8.5]);
          
          M = [0;0;0];
          M_RW =[0;0;0];
@@ -14,17 +14,17 @@ classdef controller
 
          c2 = 2.5
         %% ICL
-        Y_icl_last = zeros(3,9,20);
-        M_icl_last = zeros(3,20);
+        Y_icl_last = zeros(3,9,100);
+        M_icl_last = zeros(3,100);
        
         last_W = [0;0;0];
 
         
         last_R = [1 0 0;0 1 0;0 0 1]
 
-       k_icl =  diag([5000000000000000000,5000000000000000000,5000000000000000000,5000000000000000000,5000000000000000000,5000000000000000000,5000000000000000,5000000000000000,999000000000000000000000000]);
+       k_icl =  diag([50000000000000000000,50000000000000000000,50000000000000000000,50000000000000000000,50000000000000000000,50000000000000000000,50000000000000000,50000000000000000,999000000000000000000000000]);
 
-        N = 20;      
+        N = 100;      
         
         theta_hat_dot= [0;0;0;0;0;0;0;0;0];
         
@@ -51,13 +51,13 @@ classdef controller
 
                 % platform 
                 %using for integral on [0 delta t] interval
-                integral_num =20;
+                integral_num =100;
                 
                 R_now = reshape(platform.R(:,iteration-1), 3, 3);
                 W_now = platform.W(:,iteration-1);
                 
-
-                R_d = eul2rotm(desired(:,1)',"XYZ");
+                R_d_Euler_ZYX = [desired(3,1),desired(2,1),desired(1,1)];
+                R_d = eul2rotm(R_d_Euler_ZYX ,"ZYX");
 
                 W_d = desired(:,2);
                 W_d_dot = desired(:,3);

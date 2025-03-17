@@ -2,7 +2,7 @@ classdef trajectory
    methods
        function desired = traj_generate(obj, t,iteration,type,platform)
         
-
+% Note: the trajectory represent as Euler angle "ZYX" order
 
 
         if type == "twist"
@@ -10,131 +10,64 @@ classdef trajectory
            % xd
            % first term
            frequency_x = 0.04;
-           frequency_y = 0.09;
-           frequency_z = 0.2;
+           frequency_y = 0.15;
+           frequency_z = 0.05;
            amplitude_x = 0.4;
            amplitude_y = 0.4;
-           amplitude_z = 0.5;
+           amplitude_z = 0.4;
            %frequency_x_nd = 0.01;
            %frequency_y_nd = 0.03;
            amplitude_x_nd =0.0;
            amplitude_y_nd =0.0;
+
+
+
+        if t>40
+           frequency_x = 0.15;
+           frequency_y = 0.05;
+           frequency_z = 0.08;
+           amplitude_x = 0.4;
+           amplitude_y = 0.4;
+           amplitude_z = 0.4;
+           %frequency_x_nd = 0.01;
+           %frequency_y_nd = 0.03;
+           amplitude_x_nd =0.0;
+           amplitude_y_nd =0.0;
+        end
+
+
+         if t>80
+           frequency_x = 0.08;
+           frequency_y = 0.2;
+           frequency_z = 0.1;
+           amplitude_x = 0.4;
+           amplitude_y = 0.4;
+           amplitude_z = 0.4;
+           %frequency_x_nd = 0.01;
+           %frequency_y_nd = 0.03;
+           amplitude_x_nd =0.0;
+           amplitude_y_nd =0.0;
+        end
     
-           
 
-
-
-
-          % if t>20
-          % frequency_x = 0.03;
-          % frequency_y = 0.2;
-          % frequency_z = 0.04;
-          % amplitude_x = 0.4;
-          % amplitude_y = 0.4;
-          % amplitude_z = 0.5;
-           %frequency_x_nd = 0.01;
-           %frequency_y_nd = 0.03;
-           %amplitude_x_nd =0.0;
-           %amplitude_y_nd =0.0;
-           %end
-
-           if t>20
-           frequency_x = 0.045;
-           frequency_y = 0.08;
-           frequency_z = 0.2;
-           amplitude_x = 0.4;
-           amplitude_y = 0.4;
-           amplitude_z = 0.5;
-           %frequency_x_nd = 0.01;
-           %frequency_y_nd = 0.03;
-           amplitude_x_nd =0;
-           amplitude_y_nd =0;
-           end
-
-           if t>40
-           frequency_x = 0.048;
-           frequency_y = 0.09;
-           frequency_z = 0.03;
-           amplitude_x = 0.4;
-           amplitude_y = 0.4;
-           amplitude_z = 0.5;
-           %frequency_x_nd = 0.01;
-           %frequency_y_nd = 0.03;
-          % amplitude_x_nd =0.0;
-          % amplitude_y_nd =0.0;
-           end
-
-           if t>60
-           frequency_x = 0.05;
-           frequency_y = 0.1;
-           frequency_z = 0.1;
-           amplitude_x = 0.4;
-           amplitude_y = 0.4;
-           amplitude_z = 0.5;
-           %frequency_x_nd = 0.01;
-           %frequency_y_nd = 0.03;
-           amplitude_x_nd =0;
-           amplitude_y_nd =0;
-           end
-
-
-           if t>80
-           frequency_x = 0.04;
-           frequency_y = 0.08;
-           frequency_z = 0.15;
-           amplitude_x = 0.4;
-           amplitude_y = 0.4;
-           amplitude_z = 0.5;
-           %frequency_x_nd = 0.01;
-           %frequency_y_nd = 0.03;
-          % amplitude_x_nd =0.0;
-           %amplitude_y_nd =0.0;
-           end
-
-           if t>100
-           frequency_x = 0.045;
-           frequency_y = 0.085;
-           frequency_z = 0.1;
-           amplitude_x = 0.3;
-           amplitude_y = 0.3;
-           amplitude_z = 0.5;
-           %frequency_x_nd = 0.01;
-           %frequency_y_nd = 0.03;
-        %   amplitude_x_nd =0;
-          % amplitude_y_nd =0;
-           end
-        
-        %   if t>140
-        %   frequency_x = 0.022;
-         %  frequency_y = 0.2;
-         %  frequency_z = 0.03;
+         %  if t>60
+         %  frequency_x = 0.2;
+         %  frequency_y = 0.07;
+         %  frequency_z = 0.15;
          %  amplitude_x = 0.4;
          %  amplitude_y = 0.4;
          %  amplitude_z = 0.5;
            %frequency_x_nd = 0.01;
            %frequency_y_nd = 0.03;
-          % amplitude_x_nd =0.0;
-          % amplitude_y_nd =0.0;
+         %  amplitude_x_nd =0.0;
+         %  amplitude_y_nd =0.0;
          %  end
-
-          % if t>160
-         %  frequency_x = 0.2;
-         %  frequency_y = 0.15;
-         %  frequency_z = 0.03;
-        %   amplitude_x = 0.4;
-         %  amplitude_y = 0.4;
-        %   amplitude_z = 0.5;
-           %frequency_x_nd = 0.01;
-           %frequency_y_nd = 0.03;
-         %  amplitude_x_nd =0;
-         %  amplitude_y_nd =0;
-        %   end
-  
+           
 
 
-           desired_attitude  =[ amplitude_x*(cos(frequency_x*t))+amplitude_x_nd...
-                    ,amplitude_y*(sin(frequency_y*t))+amplitude_y_nd,...
-                    amplitude_z*(-sin(frequency_z*t))]';
+           desired_attitude  =[ amplitude_x*(cos(frequency_x*t))+amplitude_x_nd...  %X
+                    ,amplitude_y*(sin(frequency_y*t))+amplitude_y_nd,...  %Y
+                    amplitude_z*(-sin(frequency_z*t))]'; % Z
 
      
 
@@ -165,56 +98,6 @@ classdef trajectory
            desired_angular_acceleration = platform.Euler_Matrix*omegad_dot;
            
  
-            %% fix pose
-        elseif type == "origion"
-           
-            desired_attitude = [0;0;0];
-            desired_angular_velocity =[0;0;0];
-            desired_angular_acceleration = [0;0;0];
-
-        elseif type == "exp"
-           frequency_x = 0.3;
-           frequency_y = 0.3;
-           frequency_z = 0.05;
-           amplitude_x = 0.2;
-           amplitude_y = 0.3;
-           amplitude_z = 1;         
-        
-
-           desired_attitude  =[amplitude_x*exp(-cos(frequency_x*t))...
-                    ,amplitude_y*cos(frequency_y*t),...
-                    amplitude_z*(-sin(frequency_z*t))]';
-
-     
-
-
-           
-
-           omegad =[  amplitude_x*frequency_x*sin(frequency_x*t)*exp(-cos(frequency_x*t))  ;...    
-                        amplitude_y*(-frequency_y*sin(frequency_y*t));...
-                        -amplitude_z*(frequency_z*cos(frequency_z*t))];
-
-       
-
-     
-
-
-           desired_angular_velocity = platform.Euler_Matrix*omegad;
-
-           
-
-           omegad_dot =[0.06*(0.3*cos(0.3*t)*exp(-cos(0.3*t))+0.3*((sin(0.3*t))^2)*exp(-cos(0.3*t)));...    
-                           -(frequency_y^2)*amplitude_y*cos(frequency_y*t);...
-                         (frequency_z^2)*amplitude_z*sin(frequency_z*t)]; 
-
-          
-              
-
-              
-
-           desired_angular_acceleration = platform.Euler_Matrix*omegad_dot;
-
-          
    
         end
 %% return

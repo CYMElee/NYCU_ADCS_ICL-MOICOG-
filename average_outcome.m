@@ -1,9 +1,9 @@
 % this .m file use to get the average value for Estimated M.O.I,P.O.I,C.o.G
 Number_of_data = length(platform1.t(2:end));
 
-MoI_average =zeros(3,1) ;
-PoI_average =zeros(3,1) ;
-CoG_average =zeros(3,1) ;
+MoI_average =zeros(3,1);
+PoI_average =zeros(3,1);
+CoG_average =zeros(3,1);
 er_average = zeros(3,1);
 
 for i = 0:9999
