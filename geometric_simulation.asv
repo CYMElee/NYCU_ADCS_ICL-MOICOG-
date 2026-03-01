@@ -4,7 +4,7 @@ close all;
 addpath('geometry-toolbox')
 %% set drone parameters
 % simulation time
-dt = 1/20;
+dt = 1/1000;
 sim_t =180;
 
 platform1 = platform_dynamic;
@@ -66,9 +66,6 @@ platform1.omega_dot_lower_limit = zeros(3,length(platform1.t));
 %% create states arra(R.W.)
 platform1.Omega_dot = zeros(4, length(platform1.t));
 platform1.Omega = zeros(4, length(platform1.t));
-
-%init working speed
-platform1.Omega(:,1)=[52.359,-52.359,52.359,-52.359];
 
 
 
